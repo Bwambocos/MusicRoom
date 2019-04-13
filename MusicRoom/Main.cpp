@@ -1,22 +1,28 @@
-﻿
-# include <Siv3D.hpp> // OpenSiv3D v0.3.1
+﻿// include
+#include <Siv3D.hpp>
+#include <HamFramework.hpp>
+#include "Main.h"
+#include "Bar.h"
+#include "Select.h"
+#include "Album.h"
+#include "Music.h"
+#include "Fav.h"
 
 void Main()
 {
-	Graphics::SetBackground(ColorF(0.8, 0.9, 1.0));
+	Window::Resize(GameInfo::Width, GameInfo::Height);
+	Window::SetTitle(GameInfo::Title);
+	Graphics::SetBackground(GameInfo::BackgroundColor);
 
-	const Font font(60);
-
-	const Texture textureCat(Emoji(U"🐈"), TextureDesc::Mipped);
+	MyApp manager;
+	manager.setFadeColor(GameInfo::FadeInColor);
+	manager.add<Select>(U"Select");
+	manager.add<Album>(U"Album");
+	manager.add<Music>(U"Music");
+	manager.add<Fav>(U"Fav");
 
 	while (System::Update())
 	{
-		font(U"Hello, Siv3D!🐣").drawAt(Window::Center(), Palette::Black);
-
-		font(Cursor::Pos()).draw(20, 500, ColorF(0.6));
-
-		textureCat.resized(80).draw(700, 500);
-
-		Circle(Cursor::Pos(), 60).draw(ColorF(1, 0, 0, 0.5));
+		if (!manager.update()) break;
 	}
 }
