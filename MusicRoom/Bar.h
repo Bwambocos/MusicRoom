@@ -2,6 +2,9 @@
 #pragma once
 #include "Main.h"
 
+// const
+const int BAR_HEIGHT = 64;
+
 // ステータスバー
 class Bar : public MyApp::Scene
 {

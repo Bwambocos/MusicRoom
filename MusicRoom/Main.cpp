@@ -10,7 +10,7 @@
 
 void Main()
 {
-	Window::Resize(GameInfo::Width, GameInfo::Height);
+	Window::Resize(GameInfo::Width, GameInfo::Height + BAR_HEIGHT);
 	Window::SetTitle(GameInfo::Title);
 	Graphics::SetBackground(GameInfo::BackgroundColor);
 
