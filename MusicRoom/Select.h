@@ -4,13 +4,13 @@
 
 // アルバム選択画面
 
-// const
-const int COM_MESSAGE_MILLISEC = 1000;
-const int SCROLL_MSEC = 500;
-
 class Select : public MyApp::Scene
 {
 private:
+
+	// const
+	const int COM_MESSAGE_MILLISEC = 1000;
+	const int SCROLL_MSEC = 500;
 
 	// アルバム構造体
 	struct Album
@@ -19,33 +19,37 @@ private:
 		Texture image;
 	};
 
-	std::vector<std::pair<int, int>>comTime;
 	std::vector<Album> AlbumList;
-	Texture main, no_img, fav;
+	std::vector<std::pair<int, int>>comTime;
+	Texture bgImage, no_img, fav;
 	String setAlbum, setAlbumB;
-	Grid<double_t> z;
+	Grid<double_t>z;
 	Triangle goUp, goDown;
-	int startTime, nowTime, first_cou = 0, selectedAlbumNum, scrollStartTime, scrollNowTime, scrollY = 0;
-	bool scr_flag = false, scr_upflag;
+	int startTime, nowTime, first_cnt = 0, selectedAlbumNum, scrollStartTime, scrollNowTime, scrollY = 0, scrollFlag = 0;
 
 public:
 
+	// 初期化
 	Select(const InitData& init);
+
+	// 更新
 	void update() override;
+
+	// 描画
 	void draw() const override;
 
 	// アルバム一覧 正方形区画を作成
-	Rect MakeRect(int x, int y) const;
+	Rect makeRect(int x, int y) const;
 
 	// アルバム画像を返す
-	Texture SelectImage(int cou) const;
+	Texture getSelectedImage(int cnt) const;
 
 	// 選択されたアルバム名を返す
-	std::pair<String, String> getSetAlbum();
+	std::pair<String, String>getSelectedAlbum();
 
 	// 次のアルバムを返す
 	void getNextAlbum();
 
 	// アルバム詳細 描画
-	void DrawDetails(int cou) const;
+	void drawDetails(int cnt) const;
 };
