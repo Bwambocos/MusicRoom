@@ -82,8 +82,8 @@ void Select::update()
 						if (cnt == (signed)AlbumList.size()) changeScene(U"Fav");
 						else
 						{
-							setAlbum = AlbumList[cnt].name;
-							setAlbumB = AlbumList[cnt].dname;
+							getData().selectedAlbumName = AlbumList[cnt].name;
+							getData().selectedAlbumDir = AlbumList[cnt].dname;
 							selectedAlbumNum = cnt;
 							changeScene(U"Album");
 						}
@@ -167,18 +167,12 @@ Texture Select::getSelectedImage(int cnt) const
 	return (cnt < (signed)AlbumList.size() ? AlbumList[cnt].image : fav);
 }
 
-// 選択されたアルバムの名前を返す
-std::pair<String, String> Select::getSelectedAlbum()
-{
-	return std::make_pair(setAlbum, setAlbumB);
-}
-
 // 次のアルバムを返す
 void Select::getNextAlbum()
 {
 	(++selectedAlbumNum) %= AlbumList.size();
-	setAlbum = AlbumList[selectedAlbumNum].name;
-	setAlbumB = AlbumList[selectedAlbumNum].dname;
+	getData().selectedAlbumName = AlbumList[selectedAlbumNum].name;
+	getData().selectedAlbumDir = AlbumList[selectedAlbumNum].dname;
 }
 
 // アルバム詳細 描画

@@ -22,7 +22,6 @@ private:
 	std::vector<Album> AlbumList;
 	std::vector<std::pair<int, int>>comTime;
 	Texture bgImage, no_img, fav;
-	String setAlbum, setAlbumB;
 	Grid<double_t>z;
 	Triangle goUp, goDown;
 	int startTime, nowTime, first_cnt = 0, selectedAlbumNum, scrollStartTime, scrollNowTime, scrollY = 0, scrollFlag = 0;
@@ -43,9 +42,6 @@ public:
 
 	// アルバム画像を返す
 	Texture getSelectedImage(int cnt) const;
-
-	// 選択されたアルバム名を返す
-	std::pair<String, String>getSelectedAlbum();
 
 	// 次のアルバムを返す
 	void getNextAlbum();
