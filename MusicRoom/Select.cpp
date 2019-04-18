@@ -24,14 +24,14 @@ Select::Select(const InitData& init) : IScene(init)
 		while (text.readLine(temp_of_temp)) comment += temp_of_temp;
 		Texture image(U"music\\" + temp + U"\\" + temp + U".png");
 		if (!image) image = no_img;
-		AlbumList.push_back({ name,temp,creator,comment,image });
+		getData().AlbumList.push_back({ name,temp,creator,comment,image });
 	}
 
-	comTime.resize(AlbumList.size() + 8);
+	comTime.resize(getData().AlbumList.size() + 8);
 	bgImage = Texture(U"data\\bgImage.png");
 	fav = Texture(U"data\\Select\\fav.png");
 	no_img = Texture(U"data\\Select\\no_img.png");
-	z = Grid<double>(3, (AlbumList.size() + 1) / 3 + 3);
+	z = Grid<double>(3, (getData().AlbumList.size() + 1) / 3 + 3);
 	goUp = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
 	goDown = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
 	startTime = (int)Time::GetMillisec();
@@ -47,7 +47,7 @@ void Select::update()
 	if (scrollFlag == 0)
 	{
 		if (first_cnt > 0 && (goUp.leftClicked() || Mouse::Wheel() < 0)) scrollFlag = 1;
-		if (first_cnt + 5 <= (signed)AlbumList.size() && (goDown.leftClicked() || Mouse::Wheel() > 0)) scrollFlag = 2;
+		if (first_cnt + 5 <= (signed)getData().AlbumList.size() && (goDown.leftClicked() || Mouse::Wheel() > 0)) scrollFlag = 2;
 		if (scrollFlag != 0) scrollNowTime = scrollStartTime = (int)Time::GetMillisec();
 	}
 	else
@@ -57,7 +57,7 @@ void Select::update()
 			first_cnt += (scrollFlag == 1 ? -3 : 3);
 			scrollY = scrollFlag = 0;
 			first_cnt = Max(first_cnt, 0);
-			first_cnt = Min<int>(first_cnt, (int)AlbumList.size() / 3 * 3);
+			first_cnt = Min<int>(first_cnt, (int)getData().AlbumList.size() / 3 * 3);
 		}
 		else scrollY = (scrollFlag == 1 ? 246 : -246) * ((scrollNowTime - scrollStartTime)) / SCROLL_MSEC;
 		scrollNowTime = (int)Time::GetMillisec();
@@ -79,12 +79,12 @@ void Select::update()
 					comTime[cnt].second = (int)Time::GetMillisec();
 					if (MouseL.down())
 					{
-						if (cnt == (signed)AlbumList.size()) changeScene(U"Fav");
+						if (cnt == (signed)getData().AlbumList.size()) changeScene(U"Fav");
 						else
 						{
-							getData().selectedAlbumName = AlbumList[cnt].name;
-							getData().selectedAlbumDir = AlbumList[cnt].dname;
-							selectedAlbumNum = cnt;
+							getData().selectedAlbumName = getData().AlbumList[cnt].name;
+							getData().selectedAlbumDir = getData().AlbumList[cnt].dname;
+							getData().selectedAlbumIndex = cnt;
 							changeScene(U"Album");
 						}
 					}
@@ -97,9 +97,9 @@ void Select::update()
 			}
 			if (rect.mouseOver()) z[y + 1][x + 1] = Min(z[y + 1][x + 1] + 0.05, 0.5);
 			++cnt;
-			if (cnt == (signed)AlbumList.size() + 1) break;
+			if (cnt == (signed)getData().AlbumList.size() + 1) break;
 		}
-		if (cnt == (signed)AlbumList.size() + 1) break;
+		if (cnt == (signed)getData().AlbumList.size() + 1) break;
 	}
 }
 
@@ -113,7 +113,7 @@ void Select::draw() const
 		goUp.draw((goUp.mouseOver() ? Palette::Orange : Palette::White));
 		goUp.drawFrame(2, Palette::Black);
 	}
-	if (first_cnt + 5 <= (signed)AlbumList.size())
+	if (first_cnt + 5 <= (signed)getData().AlbumList.size())
 	{
 		goDown.draw((goDown.mouseOver() ? Palette::Orange : Palette::White));
 		goDown.drawFrame(2, Palette::Black);
@@ -135,9 +135,9 @@ void Select::draw() const
 				RectF(rect).stretched(s * 2).drawFrame(3, 0, Color(0, 0, 0));
 			}
 			++cnt;
-			if (cnt == (signed)AlbumList.size() + 1) break;
+			if (cnt == (signed)getData().AlbumList.size() + 1) break;
 		}
-		if (cnt == (signed)AlbumList.size() + 1) break;
+		if (cnt == (signed)getData().AlbumList.size() + 1) break;
 	}
 	cnt = first_cnt;
 	for (int y = 0; y <= (signed)z.height(); ++y)
@@ -148,9 +148,9 @@ void Select::draw() const
 			rect.y += scrollY;
 			if (rect.mouseOver() && comTime[cnt].second - comTime[cnt].first >= COM_MESSAGE_MILLISEC) drawDetails(cnt);
 			++cnt;
-			if (cnt == (signed)AlbumList.size() + 1) break;
+			if (cnt == (signed)getData().AlbumList.size() + 1) break;
 		}
-		if (cnt == (signed)AlbumList.size() + 1) break;
+		if (cnt == (signed)getData().AlbumList.size() + 1) break;
 	}
 }
 
@@ -164,15 +164,7 @@ Rect Select::makeRect(int x, int y) const
 Texture Select::getSelectedImage(int cnt) const
 {
 	if (cnt < 0) return Texture();
-	return (cnt < (signed)AlbumList.size() ? AlbumList[cnt].image : fav);
-}
-
-// 次のアルバムを返す
-void Select::getNextAlbum()
-{
-	(++selectedAlbumNum) %= AlbumList.size();
-	getData().selectedAlbumName = AlbumList[selectedAlbumNum].name;
-	getData().selectedAlbumDir = AlbumList[selectedAlbumNum].dname;
+	return (cnt < (signed)getData().AlbumList.size() ? getData().AlbumList[cnt].image : fav);
 }
 
 // アルバム詳細 描画
@@ -181,15 +173,15 @@ void Select::drawDetails(int cnt) const
 	const Point pos = Cursor::Pos();
 	static Font font(16);
 	static String name, creator;
-	if (cnt == (signed)AlbumList.size())
+	if (cnt == (signed)getData().AlbumList.size())
 	{
 		name = U"お気に入り";
 		creator = U"お気に入り登録した曲を表示します。";
 	}
 	else
 	{
-		name = AlbumList[cnt].name;
-		creator = AlbumList[cnt].creator;
+		name = getData().AlbumList[cnt].name;
+		creator = getData().AlbumList[cnt].creator;
 	}
 	const auto width = Max(font(name).region().w, font(creator).region().w);
 	static int x_addtion;
