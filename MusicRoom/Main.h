@@ -3,10 +3,24 @@
 #include <Siv3D.hpp>
 #include <HamFramework.hpp>
 
+// アルバム構造体
+struct AlbumData
+{
+	String name, dname, creator, comment;
+	Texture image;
+};
+
 // 全てのシーンからアクセスできるデータ
 struct GameData
 {
+	String prevScene;
+
+	std::vector<AlbumData> AlbumList;
 	String selectedAlbumName, selectedAlbumDir;
+	int selectedAlbumIndex;
+
+	String selectedMusicName, selectedMusicDir;
+	Audio selectedMusic;
 };
 
 using MyApp = SceneManager<String, GameData>;
