@@ -6,7 +6,7 @@
 // 全てのシーンからアクセスできるデータ
 struct GameData
 {
-
+	String selectedAlbumName, selectedAlbumDir;
 };
 
 using MyApp = SceneManager<String, GameData>;
