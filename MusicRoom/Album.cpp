@@ -11,52 +11,28 @@ Album::Album(const InitData& init) : IScene(init)
 {
 	if (!main)
 	{
-		main = Texture(U"data\\Detail\\main.png");
-		playing = Texture(U"data\\Detail\\playing.png");
-		pausing = Texture(U"data\\Detail\\pausing.png");
-		not_fav = Texture(U"data\\Detail\\not_fav.png");
-		fav = Texture(U"data\\Detail\\fav.png");
-	}
-	albumBName = getData().selectedAlbumDir;
-
-	// アルバム情報 初期化
-	albumName.clear(); albumCreator.clear(); albumExpl.clear(); getData().MusicList.clear();
-	albumImg = Texture(U"music\\" + albumBName + U"\\" + albumBName + U".png");
-	TextReader reader(U"music\\" + albumBName + U"\\" + albumBName + U".txt");
-	reader.readLine(albumName); reader.readLine(albumCreator);
-	String temp; while (reader.readLine(temp)) albumExpl += temp + U"\n";
-	font_albumName = Font(24);
-	font_albumCreator = Font(18);
-	font_albumExpl = Font(12);
-	if (getData().prevScene != U"Music") albumList_begin = 0;
-
-	// まだ読み込まれていないアルバム
-	if (albums.find(albumBName) == albums.end() || reloadFlag)
-	{
-		// 曲リスト 初期化
+		main = Texture(U"data\\bgImage.png");
+		playing = Texture(U"data\\Album\\playing.png");
+		pausing = Texture(U"data\\Album\\pausing.png");
+		not_fav = Texture(U"data\\Album\\not_fav.png");
+		fav = Texture(U"data\\Album\\fav.png");
+		font_albumName = Font(24);
+		font_albumCreator = Font(18);
+		font_albumExpl = Font(12);
 		font_albumList = Font(16);
-		const String extensions[] = { U".wav", U".ogg", U".mp3" };
-		TextReader reader(U"music\\" + albumBName + U"\\music_list.txt");
-		String fileName, tempName; Audio tempMusic; int temp_totalTime;
-		while (reader.readLine(fileName))
-		{
-			for (auto ext : extensions)
-			{
-				if (FileSystem::IsFile(U"music\\" + albumBName + U"\\" + fileName + U"\\" + fileName + ext))
-				{
-					tempMusic = Audio(U"music\\" + albumBName + U"\\" + fileName + U"\\" + fileName + ext);
-					break;
-				}
-			}
-			TextReader tempReader(U"music\\" + albumBName + U"\\" + fileName + U"\\" + fileName + U".txt");
-			tempReader.readLine(tempName);
-			if (!tempMusic) tempName = U"！読み込み失敗！";
-			temp_totalTime = (int)tempMusic.lengthSec();
-			getData().MusicList.push_back({ tempMusic,Detail_musicNameBeShort(tempName),tempName,fileName,temp_totalTime });
-		}
-		albums[albumBName] = getData().MusicList;
+		rect_albumImage = RoundRect(25, 25 + BAR_HEIGHT, 250, 250, 12.5);
+		rect_albumName = RoundRect(325, 25 + BAR_HEIGHT, 393, 54, 10);
+		rect_albumCreator = RoundRect(325, 82 + BAR_HEIGHT, 393, 48, 10);
+		rect_albumExpl = RoundRect(325, 133 + BAR_HEIGHT, 393, 142, 10);
+		rect_albumList_Flag = RoundRect(25, 300 + BAR_HEIGHT, 36, 36, 5);
+		rect_albumList_Name = RoundRect(64, 300 + BAR_HEIGHT, 537, 36, 5);
+		rect_albumList_Time = RoundRect(604, 300 + BAR_HEIGHT, 100, 36, 5);
+		rect_albumList_Fav = RoundRect(707, 300 + BAR_HEIGHT, 36, 36, 5);
+		rect_albumListAll = RoundRect(25, 300 + BAR_HEIGHT, 718, 190, 5);
+		rect_albumListCell = RoundRect(64, 300 + BAR_HEIGHT, 582, 36, 5);
+		goUp = Triangle({ 384,350 }, { 414,360 }, { 354,360 });
+		goDown = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
 	}
-	else getData().MusicList = albums[albumBName];
 
 	// 描画位置 初期化
 	draw_albumName_startMSec = Time::GetMillisec();
@@ -68,74 +44,111 @@ Album::Album(const InitData& init) : IScene(init)
 	draw_albumName_x = DEFAULT_albumName_X;
 	draw_albumCreator_x = DEFAULT_albumCreator_X;
 	draw_albumExpl_y = DEFAULT_albumExpl_Y;
-	reloadFlag = false;
 
-	rect_albumImage = RoundRect(25, 25 + BAR_HEIGHT, 250, 250, 12.5);
-	rect_albumName = RoundRect(325, 25 + BAR_HEIGHT, 393, 54, 10);
-	rect_albumCreator = RoundRect(325, 82 + BAR_HEIGHT, 393, 48, 10);
-	rect_albumExpl = RoundRect(325, 133 + BAR_HEIGHT, 393, 142, 10);
-	rect_albumList_Flag = RoundRect(25, 300 + BAR_HEIGHT, 36, 36, 5);
-	rect_albumList_Name = RoundRect(64, 300 + BAR_HEIGHT, 537, 36, 5);
-	rect_albumList_Time = RoundRect(604, 300 + BAR_HEIGHT, 100, 36, 5);
-	rect_albumList_Fav = RoundRect(707, 300 + BAR_HEIGHT, 36, 36, 5);
-	rect_albumListAll = RoundRect(25, 300 + BAR_HEIGHT, 718, 190, 5);
-	rect_albumListCell = RoundRect(64, 300 + BAR_HEIGHT, 582, 36, 5);
-	goUp = Triangle({ 384,350 }, { 414,360 }, { 354,360 });
-	goDown = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
+	// アルバム情報 初期化
+	albumName = getData().AlbumList[getData().selectedAlbumIndex].name;
+	albumDir = getData().AlbumList[getData().selectedAlbumIndex].dir;
+	albumCreator = getData().AlbumList[getData().selectedAlbumIndex].creator;
+	albumComment = getData().AlbumList[getData().selectedAlbumIndex].comment;
+	albumImage = getData().AlbumList[getData().selectedAlbumIndex].image;
+	albumList_begin = 0;
+	size_t pos = 0;
+	albumComment_Separeted.clear();
+	while (pos < (int)albumComment.length())
+	{
+		for (int i = 0; i + pos < (int)albumComment.length(); ++i)
+		{
+			if (font_albumExpl(albumComment.substr(pos, i)).region().w >= rect_albumExpl.w - 10)
+			{
+				albumComment_Separeted.push_back(albumComment.substr(pos, i - 1));
+				pos += (i - 1);
+				break;
+			}
+			if (albumComment[pos + i] == U'\n')
+			{
+				albumComment_Separeted.push_back(albumComment.substr(pos, i + 1));
+				pos += (i + 1);
+				break;
+			}
+		}
+	}
+
+	// 曲リスト 初期化
+	if (getData().MusicList[albumDir].empty())
+	{
+		const String extensions[] = { U".wav", U".ogg", U".mp3" };
+		TextReader reader1(U"music\\" + albumDir + U"\\music_list.txt");
+		String tempDir;
+		getData().MusicList[albumDir].clear();
+		while (reader1.readLine(tempDir))
+		{
+			String tempName, tempComment;
+			Audio tempMusic;
+			for (auto ext : extensions)
+			{
+				if (FileSystem::IsFile(U"music\\" + albumDir + U"\\" + tempDir + U"\\" + tempDir + ext))
+				{
+					tempMusic = Audio(U"music\\" + albumDir + U"\\" + tempDir + U"\\" + tempDir + ext);
+					break;
+				}
+			}
+			TextReader reader2(U"music\\" + albumDir + U"\\" + tempDir + U"\\" + tempDir + U".txt");
+			reader2.readLine(tempName);
+			String temp; while (reader2.readLine(temp)) tempComment += temp + U"\n";
+			if (tempMusic.isEmpty()) tempName = U"！読み込み失敗！";
+			getData().MusicList[albumDir].push_back({ tempMusic, tempName, tempDir, tempComment, (int)tempMusic.lengthSec() });
+		}
+	}
+	// if (getData().nowScene != U"Music") getData().selectedMusicIndex = 0;
+
+	getData().prevScene = getData().nowScene;
+	getData().nowScene = U"Album";
 }
 
 // 更新
 void Album::update()
 {
-	if (KeyB.pressed()) changeScene(U"Select");
-	if (KeyF5.pressed()) changeScene(U"Album");
+	if (KeyB.pressed()) changeScene(U"Select", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+	if (KeyF5.pressed()) changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 
 	// アルバム情報 更新
 	Update_drawAlbumDetailStrings();
-	Album::albumExpl_Update();
+	albumExpl_Update();
 
 	// 曲リスト 更新
-	if (goUp.leftClicked) --albumList_begin;
-	if (goDown.leftClicked) ++albumList_begin;
-	if (rect_albumListAll.mouseOver)
+	if (goUp.leftClicked()) --albumList_begin;
+	if (goDown.leftClicked()) ++albumList_begin;
+	if (rect_albumListAll.mouseOver())
 	{
-		if ((albumList_begin + 5 <= (signed)getData().MusicList.size()) || (albumList_begin > 0)) albumList_begin += Mouse::Wheel();
+		if ((albumList_begin + 5 <= (signed)getData().MusicList[albumDir].size()) || (albumList_begin > 0)) albumList_begin += (int)Mouse::Wheel();
 	}
 	albumList_begin = Max(albumList_begin, 0);
-	albumList_begin = Min<int>(albumList_begin, Max<int>((int)getData().MusicList.size() - 5, 0));
-	for (int i = albumList_begin; ((i - albumList_begin) < Min<int>(5, (signed)getData().MusicList.size())) && (i < (signed)getData().MusicList.size()); ++i)
+	albumList_begin = Min<int>(albumList_begin, Max<int>((int)getData().MusicList[albumDir].size() - 5, 0));
+	for (int i = albumList_begin; ((i - albumList_begin) < Min<int>(5, (signed)getData().MusicList[albumDir].size())) && (i < (signed)getData().MusicList[albumDir].size()); ++i)
 	{
 		auto num = i - albumList_begin;
-		auto music = getData().MusicList[i];
+		auto music = getData().MusicList[albumDir][i];
 		RoundRect rect(rect_albumList_Flag.x, rect_albumList_Flag.y + num * 39, rect_albumList_Flag.w, rect_albumList_Flag.h, rect_albumList_Flag.r);
-		if (rect.leftClicked)
+		if (rect.leftClicked())
 		{
-			if (selectedMusic_num != i && selectedMusic_num < (signed)getData().MusicList.size()) getData().MusicList[selectedMusic_num].music.stop();
-			(music.music.isPlaying() ? music.music.pause() : music.music.play());
-			selectedMusic_num = i;
-			getData().selectedAlbumName = albumName;
-			getData().selectedAlbumDir = albumBName;
-			getData().selectedAlbumName = music.originName;
-			getData().selectedMusicDir = music.fileName;
-			getData().selectedMusic = music.music;
+			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) getData().MusicList[albumDir][getData().selectedMusicIndex].music.stop();
+			getData().selectedMusicIndex = i;
+			auto & newMusic = getData().MusicList[albumDir][getData().selectedMusicIndex].music;
+			(newMusic.isPlaying() ? newMusic.pause() : newMusic.play());
 		}
 		rect = RoundRect(rect_albumList_Fav.x, rect_albumList_Fav.y + num * 39, rect_albumList_Fav.w, rect_albumList_Fav.h, rect_albumList_Fav.r);
-		if (rect.leftClicked)
+		if (rect.leftClicked())
 		{
-			(isFav(albumName, music.originName) ? removeFav(albumName, music.originName) : addFav(albumName, albumBName, music.originName, music.fileName, music.music));
+			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, music.name, music.dir, music.comment, music.music));
 		}
 		rect = RoundRect(rect_albumListCell.x, rect_albumListCell.y + num * 39, rect_albumListCell.w, rect_albumListCell.h, rect_albumListCell.r);
-		if (rect.leftClicked)
+		if (rect.leftClicked())
 		{
-			if (selectedMusic_num != i && selectedMusic_num < (signed)getData().MusicList.size()) getData().MusicList[selectedMusic_num].music.stop();
-			selectedMusic_num = i;
-			getData().selectedAlbumName = albumName;
-			getData().selectedAlbumDir = albumBName;
-			getData().selectedAlbumName = music.originName;
-			getData().selectedMusicDir = music.fileName;
-			getData().selectedMusic = music.music;
-			set_stillFlag(true);
-			changeScene(U"Music");
+			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) getData().MusicList[albumDir][getData().selectedMusicIndex].music.stop();
+			getData().selectedMusicIndex = i;
+			auto & newMusic = getData().MusicList[albumDir][getData().selectedMusicIndex].music;
+			if (!newMusic.isPlaying()) newMusic.play();
+			changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 	}
 }
@@ -156,12 +169,12 @@ void Album::draw() const
 	rect_albumExpl.draw(Color(32, 32, 32, 120));
 	if (albumList_begin > 0)
 	{
-		goUp.draw((goUp.mouseOver ? Palette::Orange : Palette::White));
+		goUp.draw((goUp.mouseOver() ? Palette::Orange : Palette::White));
 		goUp.drawFrame(2, Palette::Black);
 	}
-	if (albumList_begin + 5 < (signed)getData().MusicList.size())
+	if (albumList_begin + 5 < (signed)getData().MusicList[albumDir].size())
 	{
-		goDown.draw((goDown.mouseOver ? Palette::Orange : Palette::White));
+		goDown.draw((goDown.mouseOver() ? Palette::Orange : Palette::White));
 		goDown.drawFrame(2, Palette::Black);
 	}
 	for (int i = 0; i < 5; ++i)
@@ -174,7 +187,7 @@ void Album::draw() const
 
 	// アルバム情報 描画
 	const Rect rect((int)37.5, (int)37.5 + BAR_HEIGHT, 225, 225);
-	rect(albumImg).draw();
+	rect(albumImage).draw();
 	rect.drawFrame(0, 2, Color(200, 200, 200));
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
@@ -184,52 +197,31 @@ void Album::draw() const
 	Graphics2D::SetScissorRect(Rect((int)rect_albumCreator.x, (int)rect_albumCreator.y, (int)rect_albumCreator.w, (int)rect_albumCreator.h));
 	font_albumCreator(albumCreator).draw(draw_albumCreator_x, 88 + BAR_HEIGHT);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
-	Album::albumExpl_Draw();
+	albumExpl_Draw();
 	rect_albumName.drawFrame(0, 2, Palette::Gray);
 	rect_albumCreator.drawFrame(0, 2, Palette::Gray);
 	rect_albumExpl.drawFrame(0, 2, Palette::Gray);
 
 	// 曲リスト 描画
-	for (int i = albumList_begin; (i - albumList_begin) < Min<int>(5, (int)getData().MusicList.size() - albumList_begin); ++i)
+	for (int i = albumList_begin; (i - albumList_begin) < Min<int>(5, (int)getData().MusicList[albumDir].size() - albumList_begin); ++i)
 	{
 		auto num = i - albumList_begin;
-		MusicData tmp = getData().MusicList[i];
+		MusicData tmp = getData().MusicList[albumDir][i];
 		RoundRect tmpRRect(rect_albumList_Flag.x, rect_albumList_Flag.y + num * 39, rect_albumList_Flag.w, rect_albumList_Flag.h, rect_albumList_Flag.r);
-		if (tmp.music.isPlaying()) pausing.drawAt(43, 318 + BAR_HEIGHT + num * 39, (tmpRRect.mouseOver ? Palette::Orange : Palette::White));
-		else playing.drawAt(43, 318 + BAR_HEIGHT + num * 39, (tmpRRect.mouseOver ? Palette::Orange : Palette::White));
-		font_albumList(tmp.displayName).draw(70, 304 + BAR_HEIGHT + num * 39);
+		if (tmp.music.isPlaying()) pausing.drawAt(43, 318 + BAR_HEIGHT + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
+		else playing.drawAt(43, 318 + BAR_HEIGHT + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
+		font_albumList(tmp.name).draw(70, 304 + BAR_HEIGHT + num * 39);
 		auto str = Format(Pad(tmp.totalTime / 60, { 2,U'0' }), U":", Pad(tmp.totalTime % 60, { 2,U'0' }));
 		font_albumList(str).draw(610, 304 + BAR_HEIGHT + num * 39);
 		tmpRRect = RoundRect(rect_albumList_Fav.x, rect_albumList_Fav.y + num * 39, rect_albumList_Fav.w, rect_albumList_Fav.h, rect_albumList_Fav.r);
-		((isFav(albumName, tmp.originName) || tmpRRect.mouseOver) ? fav : not_fav).drawAt(725, 318 + BAR_HEIGHT + num * 39);
+		((getData().isFav(albumName, tmp.name) || tmpRRect.mouseOver()) ? fav : not_fav).drawAt(725, 318 + BAR_HEIGHT + num * 39);
 	}
 }
 
 // アルバム説明 更新
 void Album::albumExpl_Update()
 {
-	size_t pos = 0;
-	const int32 w = (int32)rect_albumExpl.w - 10;
-	const int32 h = (int32)rect_albumExpl.h;
-	while (pos < albumExpl.length)
-	{
-		for (int i = 0; i + pos < albumExpl.length; ++i)
-		{
-			if (font_albumExpl(albumExpl.substr(pos, i)).region().w >= w)
-			{
-				texts.push_back(albumExpl.substr(pos, i - 1));
-				pos += (i - 1);
-				break;
-			}
-			if (albumExpl[pos + i] == U'\n')
-			{
-				texts.push_back(albumExpl.substr(pos, i + 1));
-				pos += (i + 1);
-				break;
-			}
-		}
-	}
-	auto height = font_albumExpl.height * texts.size();
+	auto height = font_albumExpl.height() * albumComment_Separeted.size();
 	if (rect_albumExpl.h < height)
 	{
 		if (!draw_albumExpl_stayFlag)
@@ -261,10 +253,10 @@ void Album::albumExpl_Draw() const
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)rect_albumExpl.x, (int)rect_albumExpl.y, (int)rect_albumExpl.w, (int)rect_albumExpl.h));
-	for (size_t i = 0; i < texts.size(); ++i)
+	for (size_t i = 0; i < albumComment_Separeted.size(); ++i)
 	{
-		const int32 y = static_cast<int32>(draw_albumExpl_y + i * font_albumExpl.height);
-		font_albumExpl(texts[i]).draw(rect_albumExpl.x + 10, y);
+		const int32 y = static_cast<int32>(draw_albumExpl_y + i * font_albumExpl.height());
+		font_albumExpl(albumComment_Separeted[i]).draw(rect_albumExpl.x + 10, y);
 	}
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
 }
