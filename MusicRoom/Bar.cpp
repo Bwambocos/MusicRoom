@@ -195,6 +195,17 @@ void Bar::update(GameData& getData, MyApp& manager)
 			x += 40;
 		}
 	}
+	else
+	{
+		displayPlay = originPlay[0];
+		displayBrief = originBrief[0];
+		displayStop = originStop[0];
+		displaySeek = originSeek[0];
+		displayRep = originRep[0];
+		displayPrev = originPrev[0];
+		displayNext = originNext[0];
+		displayShare = originShare[0];
+	}
 
 	// メインテキスト 更新
 	auto mainText_old = mainText;
@@ -320,7 +331,7 @@ void Bar::changeMusic(GameData & getData, MyApp & manager, int t)
 		{
 			getData.selectedMusicIndex = 0;
 			--getData.selectedAlbumIndex;
-			(getData.selectedAlbumIndex += getData.AlbumList.size()) %= getData.AlbumList.size();
+			(getData.selectedAlbumIndex += (int)getData.AlbumList.size()) %= getData.AlbumList.size();
 			manager.changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 	}

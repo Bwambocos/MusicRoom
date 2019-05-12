@@ -99,7 +99,6 @@ Album::Album(const InitData& init) : IScene(init)
 			getData().MusicList[albumDir].push_back({ tempMusic, tempName, tempDir, tempComment, (int)tempMusic.lengthSec() });
 		}
 	}
-	// if (getData().nowScene != U"Music") getData().selectedMusicIndex = 0;
 
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Album";
