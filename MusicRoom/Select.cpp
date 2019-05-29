@@ -9,39 +9,53 @@
 // 初期化
 Select::Select(const InitData& init) : IScene(init)
 {
-	if (bgImage) return;
-
-	// album_list 読み込み
-	String temp;
-	TextReader reader = TextReader(U"music\\album_list.txt");
-	while (reader.readLine(temp))
+	// AlbumList 読み込み
+	if (getData().AlbumList.empty())
 	{
-		String name, creator, comment;
-		TextReader text(U"music\\" + temp + U"\\" + temp + U".txt");
-		text.readLine(name);
-		text.readLine(creator);
-		String temp_of_temp;
-		while (text.readLine(temp_of_temp)) comment += temp_of_temp;
-		Texture image(U"music\\" + temp + U"\\" + temp + U".png");
-		if (!image) image = no_img;
-		getData().AlbumList.push_back({ name,temp,creator,comment,image });
+		String temp;
+		TextReader reader = TextReader(U"music\\album_list.txt");
+		while (reader.readLine(temp))
+		{
+			String name, creator, comment;
+			TextReader text(U"music\\" + temp + U"\\" + temp + U".txt");
+			text.readLine(name);
+			text.readLine(creator);
+			String temp_of_temp;
+			while (text.readLine(temp_of_temp)) comment += temp_of_temp + U"\n";
+			Texture image(U"music\\" + temp + U"\\" + temp + U".png");
+			if (!image) image = no_img;
+			getData().AlbumList.push_back({ name,temp,creator,comment,image });
+		}
 	}
 
-	comTime.resize(getData().AlbumList.size() + 8);
-	bgImage = Texture(U"data\\bgImage.png");
-	fav = Texture(U"data\\Select\\fav.png");
-	no_img = Texture(U"data\\Select\\no_img.png");
-	z = Grid<double>(3, (getData().AlbumList.size() + 1) / 3 + 3);
-	goUp = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
-	goDown = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
+	if (!bgImage)
+	{
+		comTime.resize(getData().AlbumList.size() + 8);
+		bgImage = Texture(U"data\\bgImage.png");
+		fav = Texture(U"data\\Select\\fav.png");
+		no_img = Texture(U"data\\Select\\no_img.png");
+		z = Grid<double>(3, (getData().AlbumList.size() + 1) / 3 + 3);
+		goUp = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
+		goDown = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
+	}
+
 	startTime = (int)Time::GetMillisec();
+
+	if (getData().nowScene == U"Fav" && !getData().FavMusicList.empty() && getData().selectedFavMusicIndex != -1) getData().FavMusicList[getData().selectedFavMusicIndex].music.stop();
+	if (getData().nowScene == U"Album" && getData().selectedMusicIndex != -1) getData().MusicList[getData().AlbumList[getData().selectedAlbumIndex].dir][getData().selectedMusicIndex].music.stop();
+	getData().selectedAlbumIndex = -1;
+	getData().selectedMusicIndex = -1;
+	getData().selectedFavMusicIndex = -1;
+
+	getData().prevScene = getData().nowScene;
+	getData().nowScene = U"Select";
 }
 
 // 更新
 void Select::update()
 {
 	nowTime = (int)Time::GetMillisec();
-	if (KeyF5.pressed()) changeScene(U"Select");
+	if (KeyF5.pressed()) changeScene(U"Select", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 
 	// スクロール 更新
 	if (scrollFlag == 0)
@@ -79,13 +93,11 @@ void Select::update()
 					comTime[cnt].second = (int)Time::GetMillisec();
 					if (MouseL.down())
 					{
-						if (cnt == (signed)getData().AlbumList.size()) changeScene(U"Fav");
+						if (cnt == (signed)getData().AlbumList.size()) changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 						else
 						{
-							getData().selectedAlbumName = getData().AlbumList[cnt].name;
-							getData().selectedAlbumDir = getData().AlbumList[cnt].dname;
 							getData().selectedAlbumIndex = cnt;
-							changeScene(U"Album");
+							changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 						}
 					}
 				}
