@@ -14,14 +14,13 @@ private:
 
 	// グローバル変数
 	Texture music_Main, faved, not_faved, originPlay[2], originBrief[2], originStop[2], originSeek[2], originRep[2], displayPlay, displayBrief, displayStop, displaySeek, displayRep;
-	String music_albumName = U"", music_albumBName = U"", music_musicName = U"", music_musicFileName = U"", music_musicExp = U"", music_musicLength = U"";
-	Audio music_Music;
+	String albumName, albumDir, musicName, musicDir, musicComment, musicTotalTime;
 	Font music_NameTime, music_Exp;
 	RoundRect rect_musicName, rect_musicTime, rect_music_isFav, rect_musicBar, rect_musicExp;
 	FFTResult fft;
 	int music_musicTime, draw_musicName_startMSec, draw_musicName_stayMSec, prev_or_next;
 	double draw_musicName_x;
-	bool draw_musicName_stayFlag, favLoop_flag = false, stop_flag = false, still_flag = true, button_flag = false, musicLoopFlag = false;
+	bool draw_musicName_stayFlag, button_flag = false;
 
 public:
 
@@ -40,16 +39,6 @@ public:
 	// 曲名描画位置 更新
 	void Update_drawMusicDetailStrings();
 
-	// 曲手動遷移
-	void changeMusic(int flag);
-
-	// 曲操作
-	// kind: 0->一時停止, 1->再生, 2->停止, 3->繰り返し切り替え
-	void changeMusicStats(int kind);
-
 	// 他画面中フラグセット
 	void set_stillFlag(bool flag);
-
-	// お気に入りループ中か否か
-	bool isFavLooping();
 };
