@@ -9,24 +9,24 @@ class Album : public MyApp::Scene
 private:
 
 	// const
-	const int DEFAULT_albumName_X = 333;
-	const int DEFAULT_albumCreator_X = 333;
-	const int DEFAULT_albumExpl_Y = 143 + BAR_HEIGHT;
-	const int DRAW_STAYMSEC = 3500;
-	const int DRAW_MOVE_X_PER_SEC = 48;
-	const int DRAW_MOVE_Y_PER_SEC = 12;
+	const int draw_albumNameDefaultX = 333;
+	const int draw_albumCreatorDefaultX = 333;
+	const int draw_albumExplDefaultX = 143 + BAR_HEIGHT;
+	const int drawStayMillisec = 3500;
+	const int draw_moveXPerSec = 48;
+	const int draw_moveYPerSec = 12;
 
 	// グローバル変数
-	Texture main, playing, pausing, not_fav, fav, albumImage;
-	Font font_albumName, font_albumCreator, font_albumExpl, font_albumList;
-	RoundRect rect_albumImage, rect_albumName, rect_albumCreator, rect_albumExpl, rect_albumList_Flag, rect_albumList_Name, rect_albumList_Time, rect_albumList_Fav, rect_albumListAll, rect_albumListCell;
-	Triangle goUp, goDown;
-	int64 draw_albumName_startMSec, draw_albumCreator_startMSec, draw_albumExpl_startMSec, draw_albumName_stayMSec, draw_albumCreator_stayMSec, draw_albumExpl_stayMSec;
+	Texture backgroundImage, playImage, pauseImage, notFavImage, favImage, albumImage;
+	Font albumNameFont, albumCreatorFont, albumExplFont, albumListFont;
+	RoundRect albumImageRRect, albumNameRRect, albumCreatorRRect, albumExplRRect, albumList_FlagRRect, albumList_NameRRect, albumList_TimeRRect, albumList_FavRRect, albumListAllRRect, albumListCellRRect;
+	Triangle goUpButton, goDownButton;
+	Stopwatch draw_albumNameTime, draw_albumCreatorTime, draw_albumExplTime;
 	String albumName, albumDir, albumCreator, albumComment;
 	Array<String> albumComment_Separeted;
-	int albumList_begin;
-	double draw_albumName_x, draw_albumCreator_x, draw_albumExpl_y;
-	bool draw_albumName_stayFlag, draw_albumCreator_stayFlag, draw_albumExpl_stayFlag;
+	int MusicListFirstIndex;
+	double draw_albumNameX, draw_albumCreatorX, draw_albumExpl_y;
+	bool draw_albumNameStayFlag, draw_albumCreatorStayFlag, draw_albumExplStayFlag;
 
 public:
 
@@ -39,15 +39,12 @@ public:
 	// 描画
 	void draw() const override;
 
-	// アルバム説明 更新
-	void albumExpl_Update();
+	// アルバム情報描画 更新
+	void draw_albumDetails_update();
 
 	// アルバム説明 描画
-	void albumExpl_Draw() const;
-
-	// 各文字列 描画
-	void Update_drawAlbumDetailStrings();
+	void albumExpl_draw() const;
 
 	// 曲名短縮
-	String Detail_musicNameBeShort(String text);
+	String Album_compressMusicName(String text) const;
 };
