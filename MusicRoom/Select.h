@@ -9,14 +9,16 @@ class Select : public MyApp::Scene
 private:
 
 	// const
-	const int COM_MESSAGE_MILLISEC = 1000;
-	const int SCROLL_MSEC = 500;
+	const int commentMillisec = 1000;
+	const int scrollMillisec = 500;
 
-	std::vector<std::pair<int, int>>comTime;
-	Texture bgImage, no_img, fav;
-	Grid<double_t>z;
-	Triangle goUp, goDown;
-	int startTime, nowTime, first_cnt = 0, scrollStartTime, scrollNowTime, scrollY = 0, scrollFlag = 0;
+	std::vector<std::pair<int, int>>commentTime;
+	Texture backgroundImage, noimgImage, favImage;
+	Grid<double_t>albumGrid;
+	Triangle goUpButton, goDownButton;
+	Stopwatch scrollTime;
+	int AlbumListFirstIndex = 0, scrollFlag = 0;
+	double scrollAddY = 0;
 
 public:
 

@@ -12,7 +12,6 @@ void Main()
 {
 	Window::Resize(GameInfo::Width, GameInfo::Height + BAR_HEIGHT);
 	Window::SetTitle(GameInfo::Title);
-	Graphics::SetBackground(GameInfo::BackgroundColor);
 
 	MyApp manager;
 	manager.setFadeColor(GameInfo::FadeInColor);
@@ -21,8 +20,12 @@ void Main()
 	manager.add<Music>(U"Music");
 	manager.add<Fav>(U"Fav");
 
+	Bar musicBar;
 	while (System::Update())
 	{
-		if (!manager.update()) break;
+		manager.updateScene();
+		manager.drawScene();
+		musicBar.update(*(manager.get()), manager);
+		musicBar.draw(*(manager.get()));
 	}
 }
