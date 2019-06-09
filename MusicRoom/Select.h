@@ -9,23 +9,16 @@ class Select : public MyApp::Scene
 private:
 
 	// const
-	const int COM_MESSAGE_MILLISEC = 1000;
-	const int SCROLL_MSEC = 500;
+	const int commentMillisec = 1000;
+	const int scrollMillisec = 500;
 
-	// アルバム構造体
-	struct Album
-	{
-		String name, dname, creator, comment;
-		Texture image;
-	};
-
-	std::vector<Album> AlbumList;
-	std::vector<std::pair<int, int>>comTime;
-	Texture bgImage, no_img, fav;
-	String setAlbum, setAlbumB;
-	Grid<double_t>z;
-	Triangle goUp, goDown;
-	int startTime, nowTime, first_cnt = 0, selectedAlbumNum, scrollStartTime, scrollNowTime, scrollY = 0, scrollFlag = 0;
+	std::vector<std::pair<int, int>>commentTime;
+	Texture backgroundImage, noimgImage, favImage;
+	Grid<double_t>albumGrid;
+	Triangle goUpButton, goDownButton;
+	Stopwatch scrollTime;
+	int AlbumListFirstIndex = 0, scrollFlag = 0;
+	double scrollAddY = 0;
 
 public:
 
@@ -43,12 +36,6 @@ public:
 
 	// アルバム画像を返す
 	Texture getSelectedImage(int cnt) const;
-
-	// 選択されたアルバム名を返す
-	std::pair<String, String>getSelectedAlbum();
-
-	// 次のアルバムを返す
-	void getNextAlbum();
 
 	// アルバム詳細 描画
 	void drawDetails(int cnt) const;

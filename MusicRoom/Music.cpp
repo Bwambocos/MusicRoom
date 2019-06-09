@@ -9,327 +9,254 @@
 // 初期化
 Music::Music(const InitData& init) : IScene(init)
 {
-	// 背景 初期化
-	if (!music_Main)
+	// シーン状況 更新
+	getData().prevScene = getData().nowScene;
+	getData().nowScene = U"Music";
+
+	// 初回のみ
+	if (backgroundImage.isEmpty())
 	{
-		music_Main = Texture(U"data\\Music\\main.png");
-		originPlay[0] = Texture(U"data\\Music\\play\\normal.png");
-		originPlay[1] = Texture(U"data\\Music\\play\\active.png");
-		originBrief[0] = Texture(U"data\\Music\\brief\\normal.png");
-		originBrief[1] = Texture(U"data\\Music\\brief\\active.png");
-		originStop[0] = Texture(U"data\\Music\\stop\\normal.png");
-		originStop[1] = Texture(U"data\\Music\\stop\\active.png");
-		originSeek[0] = Texture(U"data\\Music\\seek\\normal.png");
-		originSeek[1] = Texture(U"data\\Music\\seek\\active.png");
-		originRep[0] = Texture(U"data\\Music\\rep\\normal.png");
-		originRep[1] = Texture(U"data\\Music\\rep\\active.png");
-		faved = Texture(U"data\\Music\\fav.png");
-		not_faved = Texture(U"data\\Music\\not_fav.png");
-		music_NameTime = Font(18);
-		music_Exp = Font(16);
-		rect_musicName = RoundRect(25, 25 + BAR_HEIGHT, 468, 48, 10);
-		rect_musicTime = RoundRect(496, 25 + BAR_HEIGHT, 199, 48, 10);
-		rect_music_isFav = RoundRect(698, 25 + BAR_HEIGHT, 48, 48, 10);
-		rect_musicBar = RoundRect(127, 91 + BAR_HEIGHT, 565, 21, 5);
-		rect_musicExp = RoundRect(25, 130 + BAR_HEIGHT, 718, 357, 10);
-		displayPlay = originPlay[0];
-		displayBrief = originBrief[0];
-		displayStop = originStop[0];
-		displaySeek = originSeek[0];
-		displayRep = originRep[0];
+		backgroundImage = Texture(U"data\\backgroundImage.png");
+		playImage_all[0] = Texture(U"data\\Music\\play\\normal.png");
+		playImage_all[1] = Texture(U"data\\Music\\play\\active.png");
+		pauseImage_all[0] = Texture(U"data\\Music\\pause\\normal.png");
+		pauseImage_all[1] = Texture(U"data\\Music\\pause\\active.png");
+		stopImage_all[0] = Texture(U"data\\Music\\stop\\normal.png");
+		stopImage_all[1] = Texture(U"data\\Music\\stop\\active.png");
+		seekImage_all[0] = Texture(U"data\\Music\\seek\\normal.png");
+		seekImage_all[1] = Texture(U"data\\Music\\seek\\active.png");
+		repImage_all[0] = Texture(U"data\\Music\\rep\\normal.png");
+		repImage_all[1] = Texture(U"data\\Music\\rep\\active.png");
+		favedImage = Texture(U"data\\Music\\favedImage.png");
+		notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
+		musicNameAndTimeFont = Font(18);
+		musicExplFont = Font(16);
+		musicNameRect = RoundRect(25, 25 + BAR_HEIGHT, 468, 48, 10);
+		musicTimeRect = RoundRect(496, 25 + BAR_HEIGHT, 199, 48, 10);
+		musicFavRect = RoundRect(698, 25 + BAR_HEIGHT, 48, 48, 10);
+		musicSeekRect = RoundRect(127, 91 + BAR_HEIGHT, 565, 21, 5);
+		musicExplRect = RoundRect(25, 130 + BAR_HEIGHT, 718, 357, 10);
+		playImage_display = playImage_all[0];
+		pauseImage_display = pauseImage_all[0];
+		stopImage_display = stopImage_all[0];
+		seekImage_display = seekImage_all[0];
+		repImage_display = repImage_all[0];
 	}
 
-	// 曲情報 初期化
-	switch (get_prevScene())
-	{
-	case Scene_Detail:
-		setAlbumMusicName(music_albumName, music_albumBName, music_musicFileName, music_Music);
-		favLoop_flag = false;
-		break;
-
-	case Scene_Fav:
-		if (!favLoop_flag) setFavMusicName(music_albumName, music_albumBName, music_musicFileName, music_Music);
-		else setFavMusicName(prev_or_next, music_albumName, music_albumBName, music_musicFileName, music_Music);
-		break;
-
-	case Scene_Music:
-		if (!favLoop_flag) setAlbumMusicName(prev_or_next, music_albumName, music_albumBName, music_musicFileName, music_Music);
-		else setFavMusicName(prev_or_next, music_albumName, music_albumBName, music_musicFileName, music_Music);
-		break;
-	}
-	TextReader music_reader(U"music\\" + music_albumBName + U"\\" + music_musicFileName + U"\\" + music_musicFileName + U".txt");
-	music_reader.readLine(music_musicName);
-	music_musicExp.clear();
-	String temp;
-	while (music_reader.readLine(temp)) music_musicExp += temp + U"\n";
-	music_musicTime = (int)music_Music.lengthSec();
-
+	// 毎回
 	// 描画位置 初期化
-	draw_musicName_startMSec = (int)Time::GetMillisec();
-	draw_musicName_stayFlag = true;
-	draw_musicName_x = DEFAULT_musicName_X;
+	draw_musicNameTime.restart();
+	draw_musicNameStayFlag = true;
+	draw_musicNameX = draw_musicNameDefaultX;
 
-	giveMusicData(music_albumName, music_musicName, music_Music);
-	music_Music.play();
-	if (!still_flag) changeScene(get_prevScene());
+	const int32 w = (int32)musicExplRect.w - 10;
+	const int32 h = (int32)musicExplRect.h;
+	size_t pos = 0;
+	musicComment_separeted.clear();
+	while (pos < (int)musicComment.length())
+	{
+		for (int i = 0; i + pos < (int)musicComment.length(); ++i)
+		{
+			if (musicExplFont(musicComment.substr(pos, i)).region().w >= w)
+			{
+				musicComment_separeted.push_back(musicComment.substr(pos, i - 1));
+				pos += (i - 1);
+				break;
+			}
+			if (musicComment[pos + i] == U'\n')
+			{
+				musicComment_separeted.push_back(musicComment.substr(pos, i + 1));
+				pos += (i + 1);
+				break;
+			}
+		}
+	} 
+	for (size_t i = 0; i < musicComment_separeted.size(); ++i)
+	{
+		const int32 y = static_cast<int32>(musicExplRect.y + 10 + i * musicExplFont.height());
+		const bool overflow = (i + 1 < musicComment_separeted.size()) && (y + musicExplFont.height() * 2 + 10 > musicExplRect.y + musicExplRect.h);
+		if (overflow)
+		{
+			if (musicComment_separeted[i].length() > 2) musicComment_separeted[i].resize(musicComment_separeted[i].length() - (musicComment_separeted[i].length() > 2 ? 2 : 1));
+			if (musicComment_separeted[i][musicComment_separeted[i].length() - 1] == U'\n') musicComment_separeted[i][musicComment_separeted[i].length() - 1] = U'\0';
+			musicComment_separeted[i].append(U"...");
+		}
+		if (overflow) break;
+	}
 }
 
 // 更新
 void Music::update()
 {
-	if (KeyB.pressed())
+	if (getData().prevScene == U"Fav")
 	{
-		changeScene((favLoop_flag ? U"Fav" : U"Album"));
-		still_flag = false;
+		auto favMusicData = getData().FavMusicList[getData().selectedFavMusicIndex];
+		albumName = favMusicData.album_name;
+		albumDir = favMusicData.album_dir;
+		musicName = favMusicData.music_name;
+		musicDir = favMusicData.music_dir;
+		musicComment = favMusicData.comment;
+		musicTotalTime = Format(Pad(favMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(favMusicData.totalTime % 60, std::make_pair(2, U'0')));
 	}
-	if (KeyF5.pressed()) changeScene(U"Music");
-	if (!music_Music.isPlaying() && !stop_flag && music_Music.samplesPlayed() % music_Music.samples() == 0)
+	else
 	{
-		if (get_prevScene() == Scene_Fav)
-		{
-			favLoop_flag = true;
-		}
-		else
-		{
-			favLoop_flag = false;
-		}
-		prev_or_next = 1;
-		changeScene(U"Music");
+		auto selectedAlbumData = getData().AlbumList[getData().selectedAlbumIndex];
+		albumName = selectedAlbumData.name;
+		albumDir = selectedAlbumData.dir;
+		auto selectedMusicData = getData().MusicList[albumDir][getData().selectedMusicIndex];
+		musicName = selectedMusicData.name;
+		musicDir = selectedMusicData.dir;
+		musicComment = selectedMusicData.comment;
+		musicTotalTime = Format(Pad(selectedMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(selectedMusicData.totalTime % 60, std::make_pair(2, U'0')));
 	}
+	Audio& nowMusic = (getData().prevScene == U"Fav"
+		? (getData().selectedFavMusicIndex == -1 ? Audio() : getData().FavMusicList[getData().selectedFavMusicIndex].music)
+		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
 
 	// 再生バー 更新
 	// バー
-	if (rect_musicBar.leftPressed())
+	if (musicSeekRect.leftPressed())
 	{
-		button_flag = true;
-		music_Music.pause();
-		const Point tmpPoint = Cursor::Pos();
-		music_Music.setPosSample(music_Music.samples() * (tmpPoint.x - (int)rect_musicBar.x) / (int)rect_musicBar.w);
+		seekButtonFlag = true;
+		nowMusic.pause();
+		nowMusic.setPosSample(nowMusic.samples() * (Cursor::Pos().x - (int)musicSeekRect.x) / (int)musicSeekRect.w);
 	}
-	else if (button_flag)
+	else if (seekButtonFlag)
 	{
-		music_Music.play();
-		button_flag = false;
+		nowMusic.play();
+		seekButtonFlag = false;
 	}
 
 	// ボタン
-	Circle tmpCircle(45, rect_musicBar.y + rect_musicBar.h / 2, 15);
-	displayPlay = originPlay[(tmpCircle.mouseOver ? 1 : 0)];
-	displayBrief = originBrief[(tmpCircle.mouseOver ? 1 : 0)];
-	if (tmpCircle.leftClicked() || KeyEnter.pressed())
-	{
-		(music_Music.isPlaying() ? music_Music.pause() : music_Music.play());
-		stop_flag = false;
-		set_stopFlag(stop_flag);
-	}
-	tmpCircle = Circle(90, rect_musicBar.y + rect_musicBar.h / 2, 15);
-	displayRep = originRep[((tmpCircle.mouseOver || musicLoopFlag) ? 1 : 0)];
+	Circle tmpCircle(45, musicSeekRect.y + musicSeekRect.h / 2, 15);
+	playImage_display = playImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
+	pauseImage_display = pauseImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
+	if (tmpCircle.leftClicked() || KeyEnter.pressed()) (nowMusic.isPlaying() ? nowMusic.pause() : nowMusic.play());
+	tmpCircle = Circle(90, musicSeekRect.y + musicSeekRect.h / 2, 15);
+	repImage_display = repImage_all[((tmpCircle.mouseOver() || getData().selectedMusicLoopFlag) ? 1 : 0)];
 	if (tmpCircle.leftClicked() || KeyShift.pressed())
 	{
-		const int tmpTime = (int)music_Music.streamPosSample();
-		music_Music.pause();
-		music_Music.setLoop(!musicLoopFlag);
-		music_Music.play();
-		music_Music.setPosSample(tmpTime);
-		stop_flag = false;
-		set_stopFlag(stop_flag);
+		const int tmpTime = (int)nowMusic.streamPosSample();
+		nowMusic.pause();
+		getData().selectedMusicLoopFlag = !getData().selectedMusicLoopFlag;
+		nowMusic.setLoop(getData().selectedMusicLoopFlag);
+		nowMusic.play();
+		nowMusic.setPosSample(tmpTime);
 	}
-	tmpCircle = Circle(723, rect_musicBar.y + rect_musicBar.h / 2, 15);
-	displayStop = originStop[(tmpCircle.mouseOver ? 1 : 0)];
+	tmpCircle = Circle(723, musicSeekRect.y + musicSeekRect.h / 2, 15);
+	stopImage_display = stopImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
 	if (tmpCircle.leftClicked() || KeySpace.pressed())
 	{
-		music_Music.stop();
-		stop_flag = true;
-		set_stopFlag(stop_flag);
+		nowMusic.stop();
+		if (getData().nowScene == U"Fav" || getData().prevScene == U"Fav") getData().selectedFavMusicIndex = -1;
+		else getData().selectedMusicIndex = -1;
+		if (getData().nowScene == U"Music")
+		{
+			if (getData().prevScene == U"Fav") changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+			else changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+		}
+		return;
 	}
 
 	// 曲情報 更新
-	Update_drawMusicDetailStrings();
-	music_musicLength = Format(Pad(music_musicTime / 60, { 2,U'0' }), U":", Pad(music_musicTime % 60, { 2,U'0' }));
-	if (rect_music_isFav.leftClicked)
+	draw_musicName_update();
+	if (musicFavRect.leftClicked())
 	{
-		(isFav(music_albumName, music_musicName) ? removeFav(music_albumName, music_musicName) : addFav(music_albumName, music_albumBName, music_musicName, music_musicFileName, music_Music));
+		(getData().isFav(getData().AlbumList[getData().selectedAlbumIndex].name, musicName)
+			? getData().removeFav(getData().AlbumList[getData().selectedAlbumIndex].name, musicName)
+			: getData().addFav(getData().AlbumList[getData().selectedAlbumIndex].name, albumDir, musicName, musicDir, musicComment, nowMusic));
 	}
-	FFT::Analyze(fft, music_Music);
+	FFT::Analyze(musicFFT, nowMusic);
 }
 
 // 描画
 void Music::draw() const
 {
+	Audio& nowMusic = (getData().prevScene == U"Fav"
+		? (getData().selectedFavMusicIndex == -1 ? Audio() : getData().FavMusicList[getData().selectedFavMusicIndex].music)
+		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
+
 	// 背景 描画
-	music_Main.draw(0, BAR_HEIGHT);
-	for (auto i : step(51)) { RectF(1 + i * 15, Window::Height(), 15, -Pow(fft.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
-	rect_musicName.drawShadow({ 0,15 }, 32, 10);
-	rect_musicName.draw(Color(32, 32, 32, 120));
-	rect_musicTime.drawShadow({ 0,15 }, 32, 10);
-	rect_musicTime.draw(Color(32, 32, 32, 120));
-	rect_music_isFav.drawShadow({ 0,15 }, 32, 10);
-	rect_music_isFav.draw(Color(32, 32, 32, 120));
+	backgroundImage.draw(0, BAR_HEIGHT);
+	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Window::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
+	musicNameRect.drawShadow({ 0,15 }, 32, 10);
+	musicNameRect.draw(Color(32, 32, 32, 120));
+	musicTimeRect.drawShadow({ 0,15 }, 32, 10);
+	musicTimeRect.draw(Color(32, 32, 32, 120));
+	musicFavRect.drawShadow({ 0,15 }, 32, 10);
+	musicFavRect.draw(Color(32, 32, 32, 120));
 
 	// 再生バー
 	// バー
-	rect_musicBar.drawShadow({ 0,15 }, 32, 10);
-	rect_musicBar.drawFrame(3);
-	rect_musicBar.draw(Color(32, 32, 32, 120));
-	const RoundRect tmpRect(rect_musicBar.x, rect_musicBar.y, rect_musicBar.w * music_Music.streamPosSample() / music_Music.samples(), rect_musicBar.h, rect_musicBar.r);
+	musicSeekRect.drawShadow({ 0,15 }, 32, 10);
+	musicSeekRect.drawFrame(3);
+	musicSeekRect.draw(Color(32, 32, 32, 120));
+	const RoundRect tmpRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.h, musicSeekRect.r);
 	tmpRect.draw(Color(0, 200, 0, 120));
 
 	// Seek
-	auto x = rect_musicBar.x + rect_musicBar.w * music_Music.streamPosSample() / music_Music.samples();
-	(music_Music.isPlaying() ? originSeek[1] : originSeek[0]).drawAt(x, rect_musicBar.y + rect_musicBar.h / 2);
+	auto x = musicSeekRect.x + musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples();
+	(nowMusic.isPlaying() ? seekImage_all[1] : seekImage_all[0]).drawAt(x, musicSeekRect.y + musicSeekRect.h / 2);
 
 	// ボタン
-	(music_Music.isPlaying() ? displayBrief : displayPlay).drawAt(45, rect_musicBar.y + rect_musicBar.h / 2);
-	displayRep.drawAt(90, rect_musicBar.y + rect_musicBar.h / 2);
-	displayStop.drawAt(723, rect_musicBar.y + rect_musicBar.h / 2);
-	rect_musicExp.drawShadow({ 0,15 }, 32, 10);
-	rect_musicExp.drawFrame(3);
-	rect_musicExp.draw(Color(32, 32, 32, 120));
+	(nowMusic.isPlaying() ? pauseImage_display : playImage_display).drawAt(45, musicSeekRect.y + musicSeekRect.h / 2);
+	repImage_display.drawAt(90, musicSeekRect.y + musicSeekRect.h / 2);
+	stopImage_display.drawAt(723, musicSeekRect.y + musicSeekRect.h / 2);
+	musicExplRect.drawShadow({ 0,15 }, 32, 10);
+	musicExplRect.drawFrame(3);
+	musicExplRect.draw(Color(32, 32, 32, 120));
 
 	// 曲情報 描画
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
-	Graphics2D::SetScissorRect(Rect((int)rect_musicName.x, (int)rect_musicName.y, (int)rect_musicName.w, (int)rect_musicName.h));
-	music_NameTime(music_musicName).draw(draw_musicName_x, 31 + BAR_HEIGHT);
+	Graphics2D::SetScissorRect(Rect((int)musicNameRect.x, (int)musicNameRect.y, (int)musicNameRect.w, (int)musicNameRect.h));
+	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 31 + BAR_HEIGHT);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
-	music_NameTime(music_musicLength).draw(504, 31 + BAR_HEIGHT);
-	((isFav(music_albumName, music_musicName) || rect_music_isFav.mouseOver) ? faved : not_faved).drawAt(722, 49 + BAR_HEIGHT);
-	musicExpl_Draw();
-	rect_musicName.drawFrame(0, 2, Palette::Gray);
-	rect_musicTime.drawFrame(0, 2, Palette::Gray);
-	rect_music_isFav.drawFrame(0, 2, Palette::Gray);
+	musicNameAndTimeFont(musicTotalTime).draw(504, 31 + BAR_HEIGHT);
+	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + BAR_HEIGHT);
+	musicExpl_draw();
+	musicNameRect.drawFrame(0, 2, Palette::Gray);
+	musicTimeRect.drawFrame(0, 2, Palette::Gray);
+	musicFavRect.drawFrame(0, 2, Palette::Gray);
 }
 
 // 曲説明 描画
-void Music::musicExpl_Draw() const
+void Music::musicExpl_draw() const
 {
-	Array<String> texts;
-	const int32 w = (int32)rect_musicExp.w - 10;
-	const int32 h = (int32)rect_musicExp.h;
-	size_t pos = 0;
-
-	while (pos < music_musicExp.length)
+	for (size_t i = 0; i < musicComment_separeted.size(); ++i)
 	{
-		for (int i = 0; i + pos < music_musicExp.length; ++i)
-		{
-			if (music_Exp(music_musicExp.substr(pos, i)).region().w >= w)
-			{
-				texts.push_back(music_musicExp.substr(pos, i - 1));
-				pos += (i - 1);
-				break;
-			}
-			if (music_musicExp[pos + i] == U'\n')
-			{
-				texts.push_back(music_musicExp.substr(pos, i + 1));
-				pos += (i + 1);
-				break;
-			}
-		}
-	}
-
-	for (size_t i = 0; i < texts.size(); ++i)
-	{
-		const int32 y = static_cast<int32>(rect_musicExp.y + 10 + i * music_Exp.height);
-		const bool overflow = (i + 1 < texts.size()) && (y + music_Exp.height * 2 + 10 > rect_musicExp.y + rect_musicExp.h);
-		if (overflow)
-		{
-			if (texts[i].length > 2) texts[i].resize(texts[i].length - (texts[i].length > 2 ? 2 : 1));
-			if (texts[i][texts[i].length - 1] == U'\n') texts[i][texts[i].length - 1] = U'\0';
-			texts[i].append(U"...");
-		}
-		music_Exp(texts[i]).draw(rect_musicExp.x + 10, y);
+		const int32 y = static_cast<int32>(musicExplRect.y + 10 + i * musicExplFont.height());
+		const bool overflow = (i + 1 < musicComment_separeted.size()) && (y + musicExplFont.height() * 2 + 10 > musicExplRect.y + musicExplRect.h);
+		musicExplFont(musicComment_separeted[i]).draw(musicExplRect.x + 10, y);
 		if (overflow) break;
 	}
 }
 
 // 曲名描画位置 更新
-void Music::Update_drawMusicDetailStrings()
+void Music::draw_musicName_update()
 {
-	auto rect = rect_musicName;
-	auto width = music_NameTime(music_musicName).region().w + rect.r;
-	if (width > rect_musicName.w)
+	auto rect = musicNameRect;
+	auto width = musicNameAndTimeFont(getData().prevScene == U"Fav" ? getData().FavMusicList[getData().selectedFavMusicIndex].music_name : getData().MusicList[albumDir][getData().selectedMusicIndex].name).region().w + rect.r;
+	if (width > musicNameRect.w)
 	{
-		if (!draw_musicName_stayFlag)
+		if (!draw_musicNameStayFlag)
 		{
-			if (draw_musicName_x + width > rect.x + rect.w) draw_musicName_x -= (double)DRAW_MUSICNAME_MOVE_X * (Time::GetMillisec() - draw_musicName_stayMSec) / 1000;
+			if (draw_musicNameX + width > rect.x + rect.w) draw_musicNameX = -(double)draw_moveXPerSec * draw_musicNameTime.ms() / 1000;
 			else
 			{
-				draw_musicName_startMSec = draw_musicName_stayMSec = (int)Time::GetMillisec();
-				draw_musicName_stayFlag = true;
+				draw_musicNameTime.restart();
+				draw_musicNameStayFlag = true;
 			}
 		}
-		if (draw_musicName_stayFlag)
+		if (draw_musicNameStayFlag)
 		{
-			if (draw_musicName_stayMSec - draw_musicName_startMSec >= DRAW_STAYMSEC)
+			if (draw_musicNameTime.ms() >= draw_stayMillisec)
 			{
-				draw_musicName_startMSec = draw_musicName_stayMSec;
-				if (draw_musicName_x == DEFAULT_musicName_X) draw_musicName_stayFlag = false;
-				else draw_musicName_x = DEFAULT_musicName_X;
+				draw_musicNameTime.restart();
+				if (draw_musicNameX == draw_musicNameDefaultX) draw_musicNameStayFlag = false;
+				else draw_musicNameX = draw_musicNameDefaultX;
 			}
 		}
-		draw_musicName_stayMSec = (int)Time::GetMillisec();
 	}
-}
-
-// 曲手動遷移
-void Music::changeMusic(int flag)
-{
-	favLoop_flag = (get_prevScene() == Scene_Fav || favLoop_flag);
-	prev_or_next = flag;
-	music_Music.stop();
-	if (!favLoop_flag) setAlbumMusicName(prev_or_next, music_albumName, music_albumBName, music_musicFileName, music_Music);
-	else setFavMusicName(prev_or_next, music_albumName, music_albumBName, music_musicFileName, music_Music);
-	TextReader music_reader(U"music\\" + music_albumBName + U"\\" + music_musicFileName + U"\\" + music_musicFileName + U".txt");
-	music_reader.readLine(music_musicName);
-	String temp;
-	music_musicExp.clear();
-	while (music_reader.readLine(temp)) music_musicExp += temp + U"\n";
-	music_musicTime = (int)music_Music.lengthSec();
-	draw_musicName_startMSec = (int)Time::GetMillisec();
-	draw_musicName_stayFlag = true;
-	draw_musicName_x = DEFAULT_musicName_X;
-	giveMusicData(music_albumName, music_musicName, music_Music);
-	music_Music.play();
-}
-
-// 曲操作
-// kind: 0->一時停止, 1->再生, 2->停止, 3->繰り返し切り替え
-void Music::changeMusicStats(int kind)
-{
-	switch (kind)
-	{
-	case 0:
-		music_Music.pause();
-		stop_flag = false;
-		break;
-	case 1:
-		music_Music.play();
-		stop_flag = false;
-		break;
-	case 2:
-		music_Music.stop();
-		stop_flag = true;
-		break;
-	case 3:
-		const int tmpTime = (int)music_Music.streamPosSample();
-		music_Music.pause();
-		music_Music.setLoop(!musicLoopFlag);
-		music_Music.play();
-		music_Music.setPosSample(tmpTime);
-		stop_flag = false;
-		break;
-	}
-}
-
-// 他画面中フラグセット
-void Music::set_stillFlag(bool flag)
-{
-	still_flag = flag;
-}
-
-// お気に入りループ中か否か
-bool Music::isFavLooping()
-{
-	return favLoop_flag;
 }
