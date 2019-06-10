@@ -9,44 +9,41 @@
 Bar::Bar()
 {
 	// ‰‰ñ‚Ì‚Ý
-	if (dog.isEmpty())
-	{
-		playImage_all[0] = Texture(U"data\\Bar\\play\\normal.png");
-		playImage_all[1] = Texture(U"data\\Bar\\play\\active.png");
-		pauseImage_all[0] = Texture(U"data\\Bar\\pause\\normal.png");
-		pauseImage_all[1] = Texture(U"data\\Bar\\pause\\active.png");
-		stopImage_all[0] = Texture(U"data\\Bar\\stop\\normal.png");
-		stopImage_all[1] = Texture(U"data\\Bar\\stop\\active.png");
-		seekImage_all[0] = Texture(U"data\\Bar\\seek\\normal.png");
-		seekImage_all[1] = Texture(U"data\\Bar\\seek\\active.png");
-		repImage_all[0] = Texture(U"data\\Bar\\rep\\normal.png");
-		repImage_all[1] = Texture(U"data\\Bar\\rep\\active.png");
-		prevImage_all[0] = Texture(U"data\\Bar\\prev\\normal.png");
-		prevImage_all[1] = Texture(U"data\\Bar\\prev\\active.png");
-		nextImage_all[0] = Texture(U"data\\Bar\\next\\normal.png");
-		nextImage_all[1] = Texture(U"data\\Bar\\next\\active.png");
-		backImage_all[0] = Texture(U"data\\Bar\\Back\\normal.png");
-		backImage_all[1] = Texture(U"data\\Bar\\Back\\active.png");
-		goImage_all[0] = Texture(U"data\\Bar\\Go\\normal.png");
-		goImage_all[1] = Texture(U"data\\Bar\\Go\\active.png");
-		shareImage_all[0] = Texture(U"data\\Bar\\Share\\normal.png");
-		shareImage_all[1] = Texture(U"data\\Bar\\Share\\active.png");
-		playImage_display = playImage_all[0];
-		pauseImage_display = pauseImage_all[0];
-		stopImage_display = stopImage_all[0];
-		seekImage_display = seekImage_all[0];
-		repImage_display = repImage_all[0];
-		prevImage_display = prevImage_all[0];
-		nextImage_display = nextImage_all[0];
-		backImage_display = backImage_all[0];
-		goImage_display = goImage_all[0];
-		shareImage_display = shareImage_all[0];
-		fieldRect = Rect(0, 0, GameInfo::Width, barHeight);
-		mainRect = RoundRect(192, 0, mainRectWidth, barHeight, 16);
-		mainFont = Font(18);
-		timeFont = Font(12);
-		dog = Audio(U"data\\Bar\\dog.mp3");
-	}
+	playImage_all[0] = Texture(U"data\\Bar\\play\\normal.png");
+	playImage_all[1] = Texture(U"data\\Bar\\play\\active.png");
+	pauseImage_all[0] = Texture(U"data\\Bar\\pause\\normal.png");
+	pauseImage_all[1] = Texture(U"data\\Bar\\pause\\active.png");
+	stopImage_all[0] = Texture(U"data\\Bar\\stop\\normal.png");
+	stopImage_all[1] = Texture(U"data\\Bar\\stop\\active.png");
+	seekImage_all[0] = Texture(U"data\\Bar\\seek\\normal.png");
+	seekImage_all[1] = Texture(U"data\\Bar\\seek\\active.png");
+	repImage_all[0] = Texture(U"data\\Bar\\rep\\normal.png");
+	repImage_all[1] = Texture(U"data\\Bar\\rep\\active.png");
+	prevImage_all[0] = Texture(U"data\\Bar\\prev\\normal.png");
+	prevImage_all[1] = Texture(U"data\\Bar\\prev\\active.png");
+	nextImage_all[0] = Texture(U"data\\Bar\\next\\normal.png");
+	nextImage_all[1] = Texture(U"data\\Bar\\next\\active.png");
+	backImage_all[0] = Texture(U"data\\Bar\\Back\\normal.png");
+	backImage_all[1] = Texture(U"data\\Bar\\Back\\active.png");
+	goImage_all[0] = Texture(U"data\\Bar\\Go\\normal.png");
+	goImage_all[1] = Texture(U"data\\Bar\\Go\\active.png");
+	shareImage_all[0] = Texture(U"data\\Bar\\Share\\normal.png");
+	shareImage_all[1] = Texture(U"data\\Bar\\Share\\active.png");
+	playImage_display = playImage_all[0];
+	pauseImage_display = pauseImage_all[0];
+	stopImage_display = stopImage_all[0];
+	seekImage_display = seekImage_all[0];
+	repImage_display = repImage_all[0];
+	prevImage_display = prevImage_all[0];
+	nextImage_display = nextImage_all[0];
+	backImage_display = backImage_all[0];
+	goImage_display = goImage_all[0];
+	shareImage_display = shareImage_all[0];
+	fieldRect = Rect(0, 0, GameInfo::Width, barHeight);
+	mainRect = RoundRect(192, 0, mainRectWidth, barHeight, 16);
+	mainFont = Font(18);
+	timeFont = Font(12);
+	dog = Audio(U"data\\Bar\\dog.mp3");
 }
 
 // XV
@@ -275,7 +272,7 @@ void Bar::draw_mainText_update()
 	{
 		if (!draw_mainText_stayFlag)
 		{
-			if (draw_mainText_x + width > rect.x + rect.w) draw_mainText_x = -(double)draw_mainTextMoveX * draw_mainTextTime.ms() / 1000;
+			if (draw_mainText_x + width > rect.x + rect.w) draw_mainText_x = draw_mainTextDefaultX - (double)draw_mainTextMoveX * draw_mainTextTime.ms() / 1000;
 			else
 			{
 				draw_mainTextTime.restart();
