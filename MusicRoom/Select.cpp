@@ -20,33 +20,30 @@ Select::Select(const InitData& init) : IScene(init)
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Select";
 
-	// 初回のみ
-	if (backgroundImage.isEmpty())
-	{
-		// 変数 初期化
-		goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
-		goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
+	// 変数 初期化
+	goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
+	goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
 
-		// データ 読み込み
-		backgroundImage = Texture(U"data\\backgroundImage.png");
-		favImage = Texture(U"data\\Select\\favImage.png");
-		noimgImage = Texture(U"data\\Select\\noimgImage.png");
-		TextReader reader = TextReader(U"music\\album_list.txt");
-		String dir;
-		while (reader.readLine(dir))
-		{
-			String name, creator, comment;
-			TextReader text(U"music\\" + dir + U"\\" + dir + U".txt");
-			text.readLine(name);
-			text.readLine(creator);
-			String temp; while (text.readLine(temp)) comment += temp + U"\n";
-			Texture image(U"music\\" + dir + U"\\" + dir + U".png");
-			if (!image) image = noimgImage;
-			getData().AlbumList.push_back({ name,dir,creator,comment,image });
-		}
-		commentTime.resize(getData().AlbumList.size() + 8);
-		albumGrid = Grid<double>(3, (getData().AlbumList.size() + 1) / 3 + 3);
+	// データ 読み込み
+	backgroundImage = Texture(U"data\\backgroundImage.png");
+	favImage = Texture(U"data\\Select\\favImage.png");
+	noimgImage = Texture(U"data\\Select\\noimgImage.png");
+	TextReader reader = TextReader(U"music\\album_list.txt");
+	getData().AlbumList.clear();
+	String dir;
+	while (reader.readLine(dir))
+	{
+		String name, creator, comment;
+		TextReader text(U"music\\" + dir + U"\\" + dir + U".txt");
+		text.readLine(name);
+		text.readLine(creator);
+		String temp; while (text.readLine(temp)) comment += temp + U"\n";
+		Texture image(U"music\\" + dir + U"\\" + dir + U".png");
+		if (!image) image = noimgImage;
+		getData().AlbumList.push_back({ name,dir,creator,comment,image });
 	}
+	commentTime.resize(getData().AlbumList.size() + 8);
+	albumGrid = Grid<double>(3, (getData().AlbumList.size() + 1) / 3 + 3);
 }
 
 // 更新
