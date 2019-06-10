@@ -13,33 +13,28 @@ Album::Album(const InitData& init) : IScene(init)
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Album";
 
-	// èââÒÇÃÇ›
-	if (backgroundImage.isEmpty())
-	{
-		backgroundImage = Texture(U"data\\backgroundImage.png");
-		playImage = Texture(U"data\\Album\\playImage.png");
-		pauseImage = Texture(U"data\\Album\\pauseImage.png");
-		notFavImage = Texture(U"data\\Album\\notFavImage.png");
-		favImage = Texture(U"data\\Album\\favImage.png");
-		albumNameFont = Font(24);
-		albumCreatorFont = Font(18);
-		albumExplFont = Font(12);
-		albumListFont = Font(16);
-		albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 12.5);
-		albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 10);
-		albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 10);
-		albumExplRRect = RoundRect(325, 133 + barHeight, 393, 142, 10);
-		albumList_FlagRRect = RoundRect(25, 300 + barHeight, 36, 36, 5);
-		albumList_NameRRect = RoundRect(64, 300 + barHeight, 537, 36, 5);
-		albumList_TimeRRect = RoundRect(604, 300 + barHeight, 100, 36, 5);
-		albumList_FavRRect = RoundRect(707, 300 + barHeight, 36, 36, 5);
-		albumListAllRRect = RoundRect(25, 300 + barHeight, 718, 190, 5);
-		albumListCellRRect = RoundRect(64, 300 + barHeight, 582, 36, 5);
-		goUpButton = Triangle({ 384,350 }, { 414,360 }, { 354,360 });
-		goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
-	}
+	backgroundImage = Texture(U"data\\backgroundImage.png");
+	playImage = Texture(U"data\\Album\\playImage.png");
+	pauseImage = Texture(U"data\\Album\\pauseImage.png");
+	notFavImage = Texture(U"data\\Album\\notFavImage.png");
+	favImage = Texture(U"data\\Album\\favImage.png");
+	albumNameFont = Font(24);
+	albumCreatorFont = Font(18);
+	albumExplFont = Font(12);
+	albumListFont = Font(16);
+	albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 12.5);
+	albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 10);
+	albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 10);
+	albumExplRRect = RoundRect(325, 133 + barHeight, 393, 142, 10);
+	albumList_FlagRRect = RoundRect(25, 300 + barHeight, 36, 36, 5);
+	albumList_NameRRect = RoundRect(64, 300 + barHeight, 537, 36, 5);
+	albumList_TimeRRect = RoundRect(604, 300 + barHeight, 100, 36, 5);
+	albumList_FavRRect = RoundRect(707, 300 + barHeight, 36, 36, 5);
+	albumListAllRRect = RoundRect(25, 300 + barHeight, 718, 190, 5);
+	albumListCellRRect = RoundRect(64, 300 + barHeight, 582, 36, 5);
+	goUpButton = Triangle({ 384,350 }, { 414,360 }, { 354,360 });
+	goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
 
-	// ñàâÒ
 	// ï`âÊà íu èâä˙âª
 	draw_albumNameTime.restart();
 	draw_albumCreatorTime.restart();
@@ -49,7 +44,7 @@ Album::Album(const InitData& init) : IScene(init)
 	draw_albumExplStayFlag = true;
 	draw_albumNameX = draw_albumNameDefaultX;
 	draw_albumCreatorX = draw_albumCreatorDefaultX;
-	draw_albumExpl_y = draw_albumExplDefaultX;
+	draw_albumExpl_y = draw_albumExplDefaultY;
 
 	// ÉAÉãÉoÉÄèÓïÒ èâä˙âª
 	albumName = getData().AlbumList[getData().selectedAlbumIndex].name;
@@ -197,7 +192,7 @@ void Album::draw() const
 		RoundRect tmpRRect(albumList_FlagRRect.x, albumList_FlagRRect.y + num * 39, albumList_FlagRRect.w, albumList_FlagRRect.h, albumList_FlagRRect.r);
 		if (music.music.isPlaying()) pauseImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
 		else playImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		albumListFont(Album_compressMusicName(music.name)).draw(70, 304 + barHeight + num * 39);
+		albumListFont(compressMusicName(music.name)).draw(70, 304 + barHeight + num * 39);
 		auto str = Format(Pad(music.totalTime / 60, { 2, U'0' }), U":", Pad(music.totalTime % 60, { 2, U'0' }));
 		albumListFont(str).draw(610, 304 + barHeight + num * 39);
 		tmpRRect = RoundRect(albumList_FavRRect.x, albumList_FavRRect.y + num * 39, albumList_FavRRect.w, albumList_FavRRect.h, albumList_FavRRect.r);
@@ -214,7 +209,7 @@ void Album::draw_albumDetails_update()
 	{
 		if (!draw_albumNameStayFlag)
 		{
-			if (draw_albumNameX + width > rect.x + rect.w) draw_albumNameX = -(double)draw_moveXPerSec * draw_albumNameTime.ms() / 1000;
+			if (draw_albumNameX + width > rect.x + rect.w) draw_albumNameX = draw_albumNameDefaultX - (double)draw_moveXPerSec * draw_albumNameTime.ms() / 1000;
 			else
 			{
 				draw_albumNameTime.restart();
@@ -237,7 +232,7 @@ void Album::draw_albumDetails_update()
 	{
 		if (!draw_albumCreatorStayFlag)
 		{
-			if (draw_albumCreatorX + width > rect.x + rect.w) draw_albumCreatorX = -(double)draw_moveXPerSec * draw_albumCreatorTime.ms() / 1000;
+			if (draw_albumCreatorX + width > rect.x + rect.w) draw_albumCreatorX = draw_albumCreatorDefaultX - (double)draw_moveXPerSec * draw_albumCreatorTime.ms() / 1000;
 			else
 			{
 				draw_albumCreatorTime.restart();
@@ -259,7 +254,7 @@ void Album::draw_albumDetails_update()
 	{
 		if (!draw_albumExplStayFlag)
 		{
-			if (draw_albumExpl_y + height > albumExplRRect.y + albumExplRRect.h) draw_albumExpl_y = -(double)draw_moveYPerSec * draw_albumExplTime.ms() / (double)1000;
+			if (draw_albumExpl_y + height > albumExplRRect.y + albumExplRRect.h) draw_albumExpl_y = draw_albumExplDefaultY - (double)draw_moveYPerSec * draw_albumExplTime.ms() / (double)1000;
 			else
 			{
 				draw_albumExplTime.restart();
@@ -271,8 +266,8 @@ void Album::draw_albumDetails_update()
 			if (draw_albumExplTime.ms() >= drawStayMillisec)
 			{
 				draw_albumExplTime.restart();
-				if (draw_albumExpl_y == draw_albumExplDefaultX) draw_albumExplStayFlag = false;
-				else draw_albumExpl_y = draw_albumExplDefaultX;
+				if (draw_albumExpl_y == draw_albumExplDefaultY) draw_albumExplStayFlag = false;
+				else draw_albumExpl_y = draw_albumExplDefaultY;
 			}
 		}
 	}
@@ -294,12 +289,12 @@ void Album::albumExpl_draw() const
 }
 
 // ã»ñºíZèk
-String Album::Album_compressMusicName(String text) const
+String Album::compressMusicName(String text) const
 {
 	static const String dots(U"...");
 	const double dotsWidth = albumListFont(dots).region().w;
 	// const size_t num_chars = albumListFont.drawableCharacters(text, albumList_NameRRect.w - dotsWidth);
-	const size_t num_chars = 25;
+	size_t num_chars = 25;
 
 	if (albumListFont(text).region().w <= albumList_NameRRect.w) return text;
 	if (dotsWidth > albumList_NameRRect.w) return String();
