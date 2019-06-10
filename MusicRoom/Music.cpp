@@ -90,6 +90,11 @@ void Music::update()
 {
 	if (getData().prevScene == U"Fav")
 	{
+		if (getData().selectedFavMusicIndex == -1)
+		{
+			changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+			return;
+		}
 		auto favMusicData = getData().FavMusicList[getData().selectedFavMusicIndex];
 		albumName = favMusicData.album_name;
 		albumDir = favMusicData.album_dir;

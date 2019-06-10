@@ -13,26 +13,21 @@ Fav::Fav(const InitData& init) : IScene(init)
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Fav";
 
-	// èââÒÇÃÇ›
-	if (backgroundImage.isEmpty())
-	{
-		backgroundImage = Texture(U"data\\backgroundImage.png");
-		playImage = Texture(U"data\\Album\\playImage.png");
-		pauseImage = Texture(U"data\\Album\\pauseImage.png");
-		notFavImage = Texture(U"data\\Album\\notFavImage.png");
-		favImage = Texture(U"data\\Album\\favImage.png");
-		albumListFont = Font(16);
-		albumList_FlagRect = RoundRect(25, 25 + barHeight, 36, 36, 5);
-		albumList_NameRect = RoundRect(64, 25 + barHeight, 537, 36, 5);
-		albumList_TimeRect = RoundRect(604, 25 + barHeight, 100, 36, 5);
-		albumList_FavRect = RoundRect(707, 25 + barHeight, 36, 36, 5);
-		albumList_AllRect = RoundRect(25, 25 + barHeight, 718, 456, 5);
-		albumList_CellRect = RoundRect(64, 25 + barHeight, 582, 36, 5);
-		goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
-		goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
-	}
+	backgroundImage = Texture(U"data\\backgroundImage.png");
+	playImage = Texture(U"data\\Album\\playImage.png");
+	pauseImage = Texture(U"data\\Album\\pauseImage.png");
+	notFavImage = Texture(U"data\\Album\\notFavImage.png");
+	favImage = Texture(U"data\\Album\\favImage.png");
+	albumListFont = Font(16);
+	albumList_FlagRect = RoundRect(25, 25 + barHeight, 36, 36, 5);
+	albumList_NameRect = RoundRect(64, 25 + barHeight, 537, 36, 5);
+	albumList_TimeRect = RoundRect(604, 25 + barHeight, 100, 36, 5);
+	albumList_FavRect = RoundRect(707, 25 + barHeight, 36, 36, 5);
+	albumList_AllRect = RoundRect(25, 25 + barHeight, 718, 456, 5);
+	albumList_CellRect = RoundRect(64, 25 + barHeight, 582, 36, 5);
+	goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
+	goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
 
-	// ñàâÒ
 	FavMusicListFirstIndex = 0;
 }
 
@@ -98,23 +93,10 @@ void Fav::draw() const
 		RoundRect tmpRRect(albumList_FlagRect.x, albumList_FlagRect.y + num * 39, albumList_FlagRect.w, albumList_FlagRect.h, albumList_FlagRect.r);
 		if (music.music.isPlaying()) pauseImage.drawAt(43, 43 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
 		else playImage.drawAt(43, 43 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		albumListFont(compressMusicName(music.music_name)).draw(70, 29 + barHeight + num * 39);
+		albumListFont(music.music_compressedName).draw(70, 29 + barHeight + num * 39);
 		auto str = Format(Pad(music.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(music.totalTime % 60, std::make_pair(2, U'0')));
 		albumListFont(str).draw(610, 29 + barHeight + num * 39);
 		tmpRRect = RoundRect(albumList_FavRect.x, albumList_FavRect.y + num * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r);
 		((getData().isFav(music.album_name, music.music_name) || tmpRRect.mouseOver()) ? favImage : notFavImage).drawAt(725, 43 + barHeight + num * 39);
 	}
-}
-
-// ã»ñºíZèk
-String Fav::compressMusicName(String text) const
-{
-	static const String dots(U"...");
-	const double dotsWidth = albumListFont(dots).region().w;
-	// const size_t num_chars = albumListFont.drawableCharacters(text, albumList_NameRect.w - dotsWidth);
-	const size_t num_chars = 25;
-
-	if (albumListFont(text).region().w <= albumList_NameRect.w) return text;
-	if (dotsWidth > albumList_NameRect.w) return String();
-	return text.substr(0, num_chars) + dots;
 }

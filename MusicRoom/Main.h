@@ -33,7 +33,7 @@ struct MusicData
 struct FavMusicData
 {
 	Audio music;
-	String album_name, album_dir, music_name, music_dir, comment;
+	String album_name, album_dir, music_name, music_dir, comment, music_compressedName;
 	int totalTime;
 };
 
@@ -62,7 +62,7 @@ struct GameData
 	// Ç®ãCÇ…ì¸ÇËÇ…í«â¡Ç∑ÇÈ
 	void addFav(String albumName, String albumDir, String musicName, String musicDir, String musicComment, Audio music)
 	{
-		FavMusicList.push_back({ music, albumName, albumDir, musicName, musicDir, musicComment, (int)music.lengthSec() });
+		FavMusicList.push_back({ music, albumName, albumDir, musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
 	}
 
 	// Ç®ãCÇ…ì¸ÇËÇ©ÇÁçÌèúÇ∑ÇÈ
@@ -72,10 +72,21 @@ struct GameData
 		{
 			if (FavMusicList[i].album_name == albumName && FavMusicList[i].music_name == musicName)
 			{
+				if (i == selectedFavMusicIndex) selectedFavMusicIndex = -1;
 				FavMusicList.erase(FavMusicList.begin() + i);
 				break;
 			}
 		}
+	}
+
+	// ã»ñºíZèk
+	String compressMusicName(String text) const
+	{
+		const String dots(U"...");
+		size_t fixedLength = 0;
+		while (Font(16)(text.substr(0, fixedLength) + dots).region().w < 537 && fixedLength <= text.length()) ++fixedLength;
+		--fixedLength;
+		return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 	}
 };
 
