@@ -80,3 +80,9 @@ struct GameData
 };
 
 using MyApp = SceneManager<String, GameData>;
+
+// お気に入りリスト 読込
+void loadFavList(GameData& getData);
+
+// お気に入りリスト 保存
+void saveFavList(GameData& getData);
