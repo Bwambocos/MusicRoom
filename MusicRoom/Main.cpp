@@ -10,7 +10,7 @@
 
 void Main()
 {
-	Window::Resize(GameInfo::Width, GameInfo::Height + BAR_HEIGHT);
+	Window::Resize(GameInfo::Width, GameInfo::Height + barHeight);
 	Window::SetTitle(GameInfo::Title);
 
 	MyApp manager;

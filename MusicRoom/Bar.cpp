@@ -8,41 +8,41 @@
 // 初期化
 Bar::Bar()
 {
-	// ボタン 初期化
-	if (!dog)
+	// 初回のみ
+	if (dog.isEmpty())
 	{
-		originPlay[0] = Texture(U"data\\Bar\\play\\normal.png");
-		originPlay[1] = Texture(U"data\\Bar\\play\\active.png");
-		originBrief[0] = Texture(U"data\\Bar\\brief\\normal.png");
-		originBrief[1] = Texture(U"data\\Bar\\brief\\active.png");
-		originStop[0] = Texture(U"data\\Bar\\stop\\normal.png");
-		originStop[1] = Texture(U"data\\Bar\\stop\\active.png");
-		originSeek[0] = Texture(U"data\\Bar\\seek\\normal.png");
-		originSeek[1] = Texture(U"data\\Bar\\seek\\active.png");
-		originRep[0] = Texture(U"data\\Bar\\rep\\normal.png");
-		originRep[1] = Texture(U"data\\Bar\\rep\\active.png");
-		originPrev[0] = Texture(U"data\\Bar\\prev\\normal.png");
-		originPrev[1] = Texture(U"data\\Bar\\prev\\active.png");
-		originNext[0] = Texture(U"data\\Bar\\next\\normal.png");
-		originNext[1] = Texture(U"data\\Bar\\next\\active.png");
-		originBack[0] = Texture(U"data\\Bar\\Back\\normal.png");
-		originBack[1] = Texture(U"data\\Bar\\Back\\active.png");
-		originGo[0] = Texture(U"data\\Bar\\Go\\normal.png");
-		originGo[1] = Texture(U"data\\Bar\\Go\\active.png");
-		originShare[0] = Texture(U"data\\Bar\\Share\\normal.png");
-		originShare[1] = Texture(U"data\\Bar\\Share\\active.png");
-		displayPlay = originPlay[0];
-		displayBrief = originBrief[0];
-		displayStop = originStop[0];
-		displaySeek = originSeek[0];
-		displayRep = originRep[0];
-		displayPrev = originPrev[0];
-		displayNext = originNext[0];
-		displayBack = originBack[0];
-		displayGo = originGo[0];
-		displayShare = originShare[0];
-		fieldRect = Rect(0, 0, GameInfo::Width, BAR_HEIGHT);
-		mainRect = RoundRect(192, 0, mainRectWidth, BAR_HEIGHT, 16);
+		playImage_all[0] = Texture(U"data\\Bar\\play\\normal.png");
+		playImage_all[1] = Texture(U"data\\Bar\\play\\active.png");
+		pauseImage_all[0] = Texture(U"data\\Bar\\pause\\normal.png");
+		pauseImage_all[1] = Texture(U"data\\Bar\\pause\\active.png");
+		stopImage_all[0] = Texture(U"data\\Bar\\stop\\normal.png");
+		stopImage_all[1] = Texture(U"data\\Bar\\stop\\active.png");
+		seekImage_all[0] = Texture(U"data\\Bar\\seek\\normal.png");
+		seekImage_all[1] = Texture(U"data\\Bar\\seek\\active.png");
+		repImage_all[0] = Texture(U"data\\Bar\\rep\\normal.png");
+		repImage_all[1] = Texture(U"data\\Bar\\rep\\active.png");
+		prevImage_all[0] = Texture(U"data\\Bar\\prev\\normal.png");
+		prevImage_all[1] = Texture(U"data\\Bar\\prev\\active.png");
+		nextImage_all[0] = Texture(U"data\\Bar\\next\\normal.png");
+		nextImage_all[1] = Texture(U"data\\Bar\\next\\active.png");
+		backImage_all[0] = Texture(U"data\\Bar\\Back\\normal.png");
+		backImage_all[1] = Texture(U"data\\Bar\\Back\\active.png");
+		goImage_all[0] = Texture(U"data\\Bar\\Go\\normal.png");
+		goImage_all[1] = Texture(U"data\\Bar\\Go\\active.png");
+		shareImage_all[0] = Texture(U"data\\Bar\\Share\\normal.png");
+		shareImage_all[1] = Texture(U"data\\Bar\\Share\\active.png");
+		playImage_display = playImage_all[0];
+		pauseImage_display = pauseImage_all[0];
+		stopImage_display = stopImage_all[0];
+		seekImage_display = seekImage_all[0];
+		repImage_display = repImage_all[0];
+		prevImage_display = prevImage_all[0];
+		nextImage_display = nextImage_all[0];
+		backImage_display = backImage_all[0];
+		goImage_display = goImage_all[0];
+		shareImage_display = shareImage_all[0];
+		fieldRect = Rect(0, 0, GameInfo::Width, barHeight);
+		mainRect = RoundRect(192, 0, mainRectWidth, barHeight, 16);
 		mainFont = Font(18);
 		timeFont = Font(12);
 		dog = Audio(U"data\\Bar\\dog.mp3");
@@ -64,7 +64,7 @@ void Bar::update(GameData& getData, MyApp& manager)
 		musicData = (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? MusicData() : getData.MusicList[albumDir][getData.selectedMusicIndex]);
 		albumName = (getData.selectedAlbumIndex == -1 ? U"" : getData.AlbumList[getData.selectedAlbumIndex].name);
 	}
-	Audio & nowMusic = ((getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
+	Audio& nowMusic = ((getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
 		? (getData.selectedFavMusicIndex == -1 ? Audio() : getData.FavMusicList[getData.selectedFavMusicIndex].music)
 		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? Audio() : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
 
@@ -107,13 +107,10 @@ void Bar::update(GameData& getData, MyApp& manager)
 	{
 		draw_back_flag = true;
 		draw_go_flag = false;
-		if (backRect.leftClicked())
-		{
-			manager.changeScene((getData.prevScene == U"Fav" ? U"Fav" : U"Album"), GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
-		}
+		if (backRect.leftClicked()) manager.changeScene((getData.prevScene == U"Fav" ? U"Fav" : U"Album"), GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 	}
-	displayBack = originBack[(backRect.mouseOver() ? 1 : 0)];
-	displayGo = originGo[(goRect.mouseOver() ? 1 : 0)];
+	backImage_display = backImage_all[(backRect.mouseOver() ? 1 : 0)];
+	goImage_display = goImage_all[(goRect.mouseOver() ? 1 : 0)];
 
 	if (nowMusic.isPaused() || nowMusic.isPlaying())
 	{
@@ -124,8 +121,7 @@ void Bar::update(GameData& getData, MyApp& manager)
 			switch (cou)
 			{
 			case 0:
-				if (button.mouseOver()) displayPrev = originPrev[1];
-				else displayPrev = originPrev[0];
+				prevImage_display = prevImage_all[button.mouseOver()];
 				if (button.leftClicked())
 				{
 					nowMusic.stop();
@@ -135,21 +131,18 @@ void Bar::update(GameData& getData, MyApp& manager)
 			case 1:
 				if (nowMusic.isPlaying())
 				{
-					if (button.mouseOver()) displayBrief = originBrief[1];
-					else displayBrief = originBrief[0];
+					pauseImage_display = pauseImage_all[button.mouseOver()];
 					if (button.leftClicked()) nowMusic.pause();
 				}
 				else
 				{
-					if (button.mouseOver()) displayPlay = originPlay[1];
-					else displayPlay = originPlay[0];
+					playImage_display = playImage_all[button.mouseOver()];
 					if (button.leftClicked()) nowMusic.play();
 				}
 				break;
 			case 2:
-				if (button.mouseOver()) displayRep = originRep[1];
-				else displayRep = originRep[0];
-				if (getData.selectedMusicLoopFlag) displayRep = originRep[1];
+				repImage_display = repImage_all[button.mouseOver()];
+				if (getData.selectedMusicLoopFlag) repImage_display = repImage_all[1];
 				if (button.leftClicked())
 				{
 					const int tmpTime = (int)nowMusic.streamPosSample();
@@ -162,8 +155,7 @@ void Bar::update(GameData& getData, MyApp& manager)
 				x += mainRectWidth;
 				break;
 			case 3:
-				if (button.mouseOver()) displayStop = originStop[1];
-				else displayStop = originStop[0];
+				stopImage_display = stopImage_all[button.mouseOver()];
 				if (button.leftClicked())
 				{
 					nowMusic.stop();
@@ -174,17 +166,15 @@ void Bar::update(GameData& getData, MyApp& manager)
 						if (getData.prevScene == U"Fav") manager.changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 						else manager.changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 					}
-					displayStop = originStop[0];
+					stopImage_display = stopImage_all[0];
 				}
 				break;
 			case 4:
-				if (button.mouseOver()) displayShare = originShare[1];
-				else displayShare = originShare[0];
+				shareImage_display = shareImage_all[button.mouseOver()];
 				if (button.leftClicked()) Twitter::OpenTweetWindow(U"#" + GameInfo::Title + U" でアルバム『" + albumName + U"』の曲「" + musicData.name + U"」を聴いています！ダウンロードはこちらから：https://github.com/Bwambocos/MusicRoom/releases");
 				break;
 			case 5:
-				if (button.mouseOver()) displayNext = originNext[1];
-				else displayNext = originNext[0];
+				nextImage_display = nextImage_all[button.mouseOver()];
 				if (button.leftClicked())
 				{
 					nowMusic.stop();
@@ -197,14 +187,14 @@ void Bar::update(GameData& getData, MyApp& manager)
 	}
 	else
 	{
-		displayPlay = originPlay[0];
-		displayBrief = originBrief[0];
-		displayStop = originStop[0];
-		displaySeek = originSeek[0];
-		displayRep = originRep[0];
-		displayPrev = originPrev[0];
-		displayNext = originNext[0];
-		displayShare = originShare[0];
+		playImage_display = playImage_all[0];
+		pauseImage_display = pauseImage_all[0];
+		stopImage_display = stopImage_all[0];
+		seekImage_display = seekImage_all[0];
+		repImage_display = repImage_all[0];
+		prevImage_display = prevImage_all[0];
+		nextImage_display = nextImage_all[0];
+		shareImage_display = shareImage_all[0];
 	}
 
 	// メインテキスト 更新
@@ -218,11 +208,11 @@ void Bar::update(GameData& getData, MyApp& manager)
 	else mainText = U"『" + albumName + U"』" + musicData.name;
 	if (mainText != mainText_old)
 	{
-		draw_mainText_stayMSec = draw_mainText_startMSec = (int)Time::GetMillisec();
+		draw_mainTextTime.restart();
 		draw_mainText_stayFlag = true;
-		draw_mainText_x = DEFAULT_mainText_X;
+		draw_mainText_x = draw_mainTextDefaultX;
 	}
-	Update_drawMainText();
+	draw_mainText_update();
 }
 
 // 描画
@@ -236,32 +226,32 @@ void Bar::draw(GameData getData)
 		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? Audio() : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
 
 	// ボタン 描画
-	if (draw_back_flag) displayBack.draw(10, 10);
-	if (draw_go_flag) displayGo.draw(GameInfo::Width - 10 - displayGo.width(), 10);
+	if (draw_back_flag) backImage_display.draw(10, 10);
+	if (draw_go_flag) goImage_display.draw(GameInfo::Width - 10 - goImage_display.width(), 10);
 	int x = 768 / 2 - mainRectWidth / 2 - 40 * 3;
 	for (int cou = 0; cou < 6; ++cou)
 	{
 		switch (cou)
 		{
 		case 0:
-			displayPrev.draw(x, 12);
+			prevImage_display.draw(x, 12);
 			break;
 		case 1:
-			if (nowMusic.isPlaying()) displayBrief.draw(x, 12);
-			else displayPlay.draw(x, 12);
+			if (nowMusic.isPlaying()) pauseImage_display.draw(x, 12);
+			else playImage_display.draw(x, 12);
 			break;
 		case 2:
-			displayRep.draw(x, 12);
+			repImage_display.draw(x, 12);
 			x += mainRectWidth;
 			break;
 		case 3:
-			displayStop.draw(x, 12);
+			stopImage_display.draw(x, 12);
 			break;
 		case 4:
-			displayShare.draw(x, 12);
+			shareImage_display.draw(x, 12);
 			break;
 		case 5:
-			displayNext.draw(x, 12);
+			nextImage_display.draw(x, 12);
 			break;
 		}
 		x += 40;
@@ -277,7 +267,7 @@ void Bar::draw(GameData getData)
 }
 
 // 曲名描画位置 更新
-void Bar::Update_drawMainText()
+void Bar::draw_mainText_update()
 {
 	auto rect = mainRect;
 	auto width = mainFont(mainText).region().w + rect.r;
@@ -285,24 +275,23 @@ void Bar::Update_drawMainText()
 	{
 		if (!draw_mainText_stayFlag)
 		{
-			if (draw_mainText_x + width > rect.x + rect.w) draw_mainText_x -= (double)DRAW_mainText_MOVE_X * (Time::GetMillisec() - draw_mainText_stayMSec) / 1000;
+			if (draw_mainText_x + width > rect.x + rect.w) draw_mainText_x = -(double)draw_mainTextMoveX * draw_mainTextTime.ms() / 1000;
 			else
 			{
-				draw_mainText_startMSec = draw_mainText_stayMSec = (int)Time::GetMillisec();
+				draw_mainTextTime.restart();
 				draw_mainText_stayFlag = true;
 			}
 		}
 		if (draw_mainText_stayFlag)
 		{
-			if (draw_mainText_stayMSec - draw_mainText_startMSec >= BAR_DRAW_STAYMSEC)
+			if (draw_mainTextTime.ms() >= draw_stayMillisec)
 			{
-				draw_mainText_startMSec = draw_mainText_stayMSec;
+				draw_mainTextTime.restart();
 				const Rect tmpRect = mainFont(mainText).region();
-				if (draw_mainText_x == DEFAULT_mainText_X) draw_mainText_stayFlag = false;
-				else draw_mainText_x = DEFAULT_mainText_X;
+				if (draw_mainText_x == draw_mainTextDefaultX) draw_mainText_stayFlag = false;
+				else draw_mainText_x = draw_mainTextDefaultX;
 			}
 		}
-		draw_mainText_stayMSec = (int)Time::GetMillisec();
 	}
 	else
 	{
@@ -312,12 +301,9 @@ void Bar::Update_drawMainText()
 }
 
 // 曲変更処理
-void Bar::changeMusic(GameData & getData, MyApp & manager, int t)
+void Bar::changeMusic(GameData& getData, MyApp& manager, int t)
 {
-	if (getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
-	{
-		(getData.selectedFavMusicIndex += (t + (int)getData.FavMusicList.size())) %= getData.FavMusicList.size();
-	}
+	if (getData.nowScene == U"Fav" || getData.prevScene == U"Fav") (getData.selectedFavMusicIndex += (t + (int)getData.FavMusicList.size())) %= getData.FavMusicList.size();
 	if (getData.nowScene == U"Album" || getData.prevScene == U"Album")
 	{
 		getData.selectedMusicIndex += t;
