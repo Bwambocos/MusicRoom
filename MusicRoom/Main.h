@@ -3,23 +3,21 @@
 #include <Siv3D.hpp>
 #include <HamFramework.hpp>
 
-using MyApp = SceneManager<String, GameData>;
-MyApp manager;
-
 // ゲームの基本情報
 namespace GameInfo
 {
 	const int32 Width = 768;
 	const int32 Height = 512;
 	const String Title = U"MusicRoom v3.0";
-	const ColorF BackgroundColor = ColorF(0.4, 0.7, 0.5);
-	const ColorF FadeInColor = ColorF(1.0, 1.0, 1.0);
+	const ColorF FadeInColor = ColorF(0.0, 0.0, 0.0);
+	const int32 FadeInTime = 500;
+	const bool FadeCrossFlag = true;
 }
 
 // アルバム構造体
 struct AlbumData
 {
-	String name, dname, creator, comment;
+	String name, dir, creator, comment;
 	Texture image;
 };
 
@@ -27,66 +25,64 @@ struct AlbumData
 struct MusicData
 {
 	Audio music;
-	String displayName, originName, fileName;
+	String name, dir, comment;
+	int totalTime;
+};
+
+// お気に入り曲構造体
+struct FavMusicData
+{
+	Audio music;
+	String album_name, album_dir, music_name, music_dir, comment;
 	int totalTime;
 };
 
 // 全てのシーンからアクセスできるデータ
 struct GameData
 {
-	String prevScene;
+	String prevScene, nowScene;
 
 	std::vector<AlbumData> AlbumList;
-	String selectedAlbumName, selectedAlbumDir;
-	int selectedAlbumIndex;
+	int selectedAlbumIndex = -1;
 
-	std::vector<MusicData> MusicList;
-	String selectedMusicName, selectedMusicDir;
-	Audio selectedMusic;
-	int selectedMusicIndex;
+	std::map<String, std::vector<MusicData>> MusicList;
+	int selectedMusicIndex = -1;
+	bool selectedMusicLoopFlag;
 
-	// アルバム・曲情報 受け渡し（flag == 1 -> 次 : -1 -> 前）
-	void setAlbumMusicName(String& album_Name, String& album_BName, String& musicName, Audio& musicData)
+	std::vector<FavMusicData> FavMusicList;
+	int selectedFavMusicIndex = -1;
+
+	// お気に入りか確認する
+	bool isFav(String albumName, String musicName) const
 	{
-		album_Name = selectedAlbumName;
-		album_BName = selectedAlbumDir;
-		musicName = selectedMusicName;
-		musicData = selectedMusic;
-	};
-	void setAlbumMusicName(int flag, String& album_Name, String& album_BName, String& musicName, Audio& music)
+		for (auto i : FavMusicList) if (i.album_name == albumName && i.music_name == musicName) return true;
+		return false;
+	}
+
+	// お気に入りに追加する
+	void addFav(String albumName, String albumDir, String musicName, String musicDir, String musicComment, Audio music)
 	{
-		if (selectedMusicIndex + flag >= (int)MusicList.size())
+		FavMusicList.push_back({ music, albumName, albumDir, musicName, musicDir, musicComment, (int)music.lengthSec() });
+	}
+
+	// お気に入りから削除する
+	void removeFav(String albumName, String musicName)
+	{
+		for (int i = 0; i < (signed)FavMusicList.size(); ++i)
 		{
-			++selectedAlbumIndex;
-			selectedAlbumName = AlbumList[selectedAlbumIndex % AlbumList.size()].name;
-			selectedAlbumDir = AlbumList[selectedAlbumIndex % AlbumList.size()].dname;
-			selectedMusicIndex = -1;
-			manager.changeScene(U"Album", 1000, false);
+			if (FavMusicList[i].album_name == albumName && FavMusicList[i].music_name == musicName)
+			{
+				FavMusicList.erase(FavMusicList.begin() + i);
+				break;
+			}
 		}
-		selectedMusicIndex = (selectedMusicIndex + flag + (int)MusicList.size()) % (int)MusicList.size();
-		const auto data = MusicList[selectedMusicIndex];
-		album_Name = selectedAlbumName;
-		album_BName = selectedAlbumDir;
-		musicName = selectedMusicDir = data.fileName;
-		music = selectedMusic = data.music;
-	};
-
-	// 曲操作
-	// kind: 0->一時停止, 1->再生, 2->停止
-	void setMusicStats(int kind)
-	{
-		if (MusicList.empty()) return;
-		switch (kind)
-		{
-		case 0:
-			MusicList[selectedMusicIndex].music.pause();
-			break;
-		case 1:
-			MusicList[selectedMusicIndex].music.play();
-			break;
-		case 2:
-			MusicList[selectedMusicIndex].music.stop();
-			break;
-		}
-	};
+	}
 };
+
+using MyApp = SceneManager<String, GameData>;
+
+// お気に入りリスト 読込
+void loadFavList(GameData& getData);
+
+// お気に入りリスト 保存
+void saveFavList(GameData& getData);
