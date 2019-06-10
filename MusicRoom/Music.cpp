@@ -10,40 +10,38 @@
 Music::Music(const InitData& init) : IScene(init)
 {
 	// シーン状況 更新
-	getData().prevScene = getData().nowScene;
-	getData().nowScene = U"Music";
-
-	// 初回のみ
-	if (backgroundImage.isEmpty())
+	if (getData().nowScene != U"Music")
 	{
-		backgroundImage = Texture(U"data\\backgroundImage.png");
-		playImage_all[0] = Texture(U"data\\Music\\play\\normal.png");
-		playImage_all[1] = Texture(U"data\\Music\\play\\active.png");
-		pauseImage_all[0] = Texture(U"data\\Music\\pause\\normal.png");
-		pauseImage_all[1] = Texture(U"data\\Music\\pause\\active.png");
-		stopImage_all[0] = Texture(U"data\\Music\\stop\\normal.png");
-		stopImage_all[1] = Texture(U"data\\Music\\stop\\active.png");
-		seekImage_all[0] = Texture(U"data\\Music\\seek\\normal.png");
-		seekImage_all[1] = Texture(U"data\\Music\\seek\\active.png");
-		repImage_all[0] = Texture(U"data\\Music\\rep\\normal.png");
-		repImage_all[1] = Texture(U"data\\Music\\rep\\active.png");
-		favedImage = Texture(U"data\\Music\\favedImage.png");
-		notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
-		musicNameAndTimeFont = Font(18);
-		musicExplFont = Font(16);
-		musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 10);
-		musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 10);
-		musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 10);
-		musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 5);
-		musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 10);
-		playImage_display = playImage_all[0];
-		pauseImage_display = pauseImage_all[0];
-		stopImage_display = stopImage_all[0];
-		seekImage_display = seekImage_all[0];
-		repImage_display = repImage_all[0];
+		getData().prevScene = getData().nowScene;
+		getData().nowScene = U"Music";
 	}
 
-	// 毎回
+	backgroundImage = Texture(U"data\\backgroundImage.png");
+	playImage_all[0] = Texture(U"data\\Music\\play\\normal.png");
+	playImage_all[1] = Texture(U"data\\Music\\play\\active.png");
+	pauseImage_all[0] = Texture(U"data\\Music\\pause\\normal.png");
+	pauseImage_all[1] = Texture(U"data\\Music\\pause\\active.png");
+	stopImage_all[0] = Texture(U"data\\Music\\stop\\normal.png");
+	stopImage_all[1] = Texture(U"data\\Music\\stop\\active.png");
+	seekImage_all[0] = Texture(U"data\\Music\\seek\\normal.png");
+	seekImage_all[1] = Texture(U"data\\Music\\seek\\active.png");
+	repImage_all[0] = Texture(U"data\\Music\\rep\\normal.png");
+	repImage_all[1] = Texture(U"data\\Music\\rep\\active.png");
+	favedImage = Texture(U"data\\Music\\favedImage.png");
+	notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
+	musicNameAndTimeFont = Font(18);
+	musicExplFont = Font(16);
+	musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 10);
+	musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 10);
+	musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 10);
+	musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 5);
+	musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 10);
+	playImage_display = playImage_all[0];
+	pauseImage_display = pauseImage_all[0];
+	stopImage_display = stopImage_all[0];
+	seekImage_display = seekImage_all[0];
+	repImage_display = repImage_all[0];
+
 	// 描画位置 初期化
 	draw_musicNameTime.restart();
 	draw_musicNameStayFlag = true;
@@ -52,6 +50,8 @@ Music::Music(const InitData& init) : IScene(init)
 	const int32 w = (int32)musicExplRect.w - 10;
 	const int32 h = (int32)musicExplRect.h;
 	size_t pos = 0;
+	if (getData().prevScene == U"Fav") musicComment = getData().FavMusicList[getData().selectedFavMusicIndex].comment;
+	else musicComment = getData().MusicList[getData().AlbumList[getData().selectedAlbumIndex].dir][getData().selectedMusicIndex].comment;
 	musicComment_separeted.clear();
 	while (pos < (int)musicComment.length())
 	{
@@ -94,6 +94,11 @@ void Music::update()
 		albumName = favMusicData.album_name;
 		albumDir = favMusicData.album_dir;
 		musicName = favMusicData.music_name;
+		if (!musicDir.isEmpty() && musicDir != favMusicData.music_dir)
+		{
+			changeScene(U"Music", 0, false);
+			return;
+		}
 		musicDir = favMusicData.music_dir;
 		musicComment = favMusicData.comment;
 		musicTotalTime = Format(Pad(favMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(favMusicData.totalTime % 60, std::make_pair(2, U'0')));
@@ -105,6 +110,11 @@ void Music::update()
 		albumDir = selectedAlbumData.dir;
 		auto selectedMusicData = getData().MusicList[albumDir][getData().selectedMusicIndex];
 		musicName = selectedMusicData.name;
+		if (!musicDir.isEmpty() && musicDir != selectedMusicData.dir)
+		{
+			changeScene(U"Music", 0, false);
+			return;
+		}
 		musicDir = selectedMusicData.dir;
 		musicComment = selectedMusicData.comment;
 		musicTotalTime = Format(Pad(selectedMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(selectedMusicData.totalTime % 60, std::make_pair(2, U'0')));
@@ -246,7 +256,7 @@ void Music::draw_musicName_update()
 	{
 		if (!draw_musicNameStayFlag)
 		{
-			if (draw_musicNameX + width > rect.x + rect.w) draw_musicNameX = -(double)draw_moveXPerSec * draw_musicNameTime.ms() / 1000;
+			if (draw_musicNameX + width > rect.x + rect.w) draw_musicNameX = draw_musicNameDefaultX - (double)draw_moveXPerSec * draw_musicNameTime.ms() / 1000;
 			else
 			{
 				draw_musicNameTime.restart();
