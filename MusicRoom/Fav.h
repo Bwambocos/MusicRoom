@@ -1,6 +1,6 @@
 // include
 #pragma once
-#include "Main.h"
+#include "main.h"
 
 // お気に入り画面
 class Fav : public MyApp::Scene
@@ -8,14 +8,14 @@ class Fav : public MyApp::Scene
 private:
 
 	// const
-	const int MAX_CELL_NUM = 12;
+	const int maxCellNum = 12;
 
 	// グローバル変数
-	Texture main, playing, pausing, not_fav, fav;
-	Font font_albumList;
-	RoundRect rect_albumList_Flag, rect_albumList_Name, rect_albumList_Time, rect_albumList_Fav, rect_albumListAll, rect_albumListCell;
-	Triangle goUp, goDown;
-	int albumList_begin;
+	Texture backgroundImage, playImage, pauseImage, notFavImage, favImage;
+	Font albumListFont;
+	RoundRect albumList_FlagRect, albumList_NameRect, albumList_TimeRect, albumList_FavRect, albumList_AllRect, albumList_CellRect;
+	Triangle goUpButton, goDownButton;
+	int FavMusicListFirstIndex;
 
 public:
 
@@ -29,11 +29,5 @@ public:
 	void draw() const override;
 
 	// 曲名短縮
-	String Fav_musicNameBeShort(String text) const;
-
-	// 曲リスト開始位置 操作
-	void changeFavList_Begin();
-
-	// お気に入りリスト 保存
-	void saveFavList();
+	String compressMusicName(String text) const;
 };

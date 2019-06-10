@@ -162,9 +162,13 @@ void Music::update()
 	draw_musicName_update();
 	if (musicFavRect.leftClicked())
 	{
-		(getData().isFav(getData().AlbumList[getData().selectedAlbumIndex].name, musicName)
-			? getData().removeFav(getData().AlbumList[getData().selectedAlbumIndex].name, musicName)
-			: getData().addFav(getData().AlbumList[getData().selectedAlbumIndex].name, albumDir, musicName, musicDir, musicComment, nowMusic));
+		if (getData().prevScene == U"Album")
+		{
+			(getData().isFav(albumName, musicName)
+				? getData().removeFav(albumName, musicName)
+				: getData().addFav(albumName, albumDir, musicName, musicDir, musicComment, nowMusic));
+		}
+		if (getData().prevScene == U"Fav") (getData().isFav(albumName, musicName) ? getData().removeFav(albumName, musicName) : getData().addFav(albumName, albumDir, musicName, musicDir, musicComment, nowMusic));
 	}
 	FFT::Analyze(musicFFT, nowMusic);
 }
