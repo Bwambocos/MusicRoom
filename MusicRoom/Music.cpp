@@ -31,11 +31,11 @@ Music::Music(const InitData& init) : IScene(init)
 		notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
 		musicNameAndTimeFont = Font(18);
 		musicExplFont = Font(16);
-		musicNameRect = RoundRect(25, 25 + BAR_HEIGHT, 468, 48, 10);
-		musicTimeRect = RoundRect(496, 25 + BAR_HEIGHT, 199, 48, 10);
-		musicFavRect = RoundRect(698, 25 + BAR_HEIGHT, 48, 48, 10);
-		musicSeekRect = RoundRect(127, 91 + BAR_HEIGHT, 565, 21, 5);
-		musicExplRect = RoundRect(25, 130 + BAR_HEIGHT, 718, 357, 10);
+		musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 10);
+		musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 10);
+		musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 10);
+		musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 5);
+		musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 10);
 		playImage_display = playImage_all[0];
 		pauseImage_display = pauseImage_all[0];
 		stopImage_display = stopImage_all[0];
@@ -181,7 +181,7 @@ void Music::draw() const
 		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
 
 	// ”wŒi •`‰æ
-	backgroundImage.draw(0, BAR_HEIGHT);
+	backgroundImage.draw(0, barHeight);
 	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Window::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
 	musicNameRect.drawShadow({ 0,15 }, 32, 10);
 	musicNameRect.draw(Color(32, 32, 32, 120));
@@ -215,10 +215,10 @@ void Music::draw() const
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)musicNameRect.x, (int)musicNameRect.y, (int)musicNameRect.w, (int)musicNameRect.h));
-	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 31 + BAR_HEIGHT);
+	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 31 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
-	musicNameAndTimeFont(musicTotalTime).draw(504, 31 + BAR_HEIGHT);
-	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + BAR_HEIGHT);
+	musicNameAndTimeFont(musicTotalTime).draw(504, 31 + barHeight);
+	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + barHeight);
 	musicExpl_draw();
 	musicNameRect.drawFrame(0, 2, Palette::Gray);
 	musicTimeRect.drawFrame(0, 2, Palette::Gray);

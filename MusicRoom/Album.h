@@ -11,7 +11,7 @@ private:
 	// const
 	const int draw_albumNameDefaultX = 333;
 	const int draw_albumCreatorDefaultX = 333;
-	const int draw_albumExplDefaultX = 143 + BAR_HEIGHT;
+	const int draw_albumExplDefaultX = 143 + barHeight;
 	const int drawStayMillisec = 3500;
 	const int draw_moveXPerSec = 48;
 	const int draw_moveYPerSec = 12;

@@ -120,7 +120,7 @@ void Select::update()
 void Select::draw() const
 {
 	// メイン背景
-	backgroundImage.draw(0, BAR_HEIGHT);
+	backgroundImage.draw(0, barHeight);
 	if (AlbumListFirstIndex > 0)
 	{
 		goUpButton.draw((goUpButton.mouseOver() ? Palette::Orange : Palette::White));
@@ -170,7 +170,7 @@ void Select::draw() const
 // アルバム一覧 正方形区画を作成
 Rect Select::makeRect(int x, int y) const
 {
-	return { 30 + x * 246, BAR_HEIGHT + 30 + y * 246, 216, 216 };
+	return { 30 + x * 246, barHeight + 30 + y * 246, 216, 216 };
 }
 
 // アルバム画像を返す
