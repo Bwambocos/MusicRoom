@@ -25,7 +25,7 @@ struct AlbumData
 struct MusicData
 {
 	Audio music;
-	String name, dir, comment;
+	String name, dir, comment, compressedName;
 	int totalTime;
 };
 

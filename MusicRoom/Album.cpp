@@ -89,7 +89,7 @@ Album::Album(const InitData& init) : IScene(init)
 			reader2.readLine(musicName);
 			String temp; while (reader2.readLine(temp)) musicComment += temp + U"\n";
 			if (music.isEmpty()) musicName = U"ÅIì«Ç›çûÇ›é∏îsÅI";
-			getData().MusicList[albumDir].push_back({ music, musicName, musicDir, musicComment, (int)music.lengthSec() });
+			getData().MusicList[albumDir].push_back({ music, musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
 		}
 	}
 }
@@ -192,7 +192,7 @@ void Album::draw() const
 		RoundRect tmpRRect(albumList_FlagRRect.x, albumList_FlagRRect.y + num * 39, albumList_FlagRRect.w, albumList_FlagRRect.h, albumList_FlagRRect.r);
 		if (music.music.isPlaying()) pauseImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
 		else playImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		albumListFont(compressMusicName(music.name)).draw(70, 304 + barHeight + num * 39);
+		albumListFont(music.compressedName).draw(70, 304 + barHeight + num * 39);
 		auto str = Format(Pad(music.totalTime / 60, { 2, U'0' }), U":", Pad(music.totalTime % 60, { 2, U'0' }));
 		albumListFont(str).draw(610, 304 + barHeight + num * 39);
 		tmpRRect = RoundRect(albumList_FavRRect.x, albumList_FavRRect.y + num * 39, albumList_FavRRect.w, albumList_FavRRect.h, albumList_FavRRect.r);
@@ -291,12 +291,9 @@ void Album::albumExpl_draw() const
 // ã»ñºíZèk
 String Album::compressMusicName(String text) const
 {
-	static const String dots(U"...");
-	const double dotsWidth = albumListFont(dots).region().w;
-	// const size_t num_chars = albumListFont.drawableCharacters(text, albumList_NameRRect.w - dotsWidth);
-	size_t num_chars = 25;
-
-	if (albumListFont(text).region().w <= albumList_NameRRect.w) return text;
-	if (dotsWidth > albumList_NameRRect.w) return String();
-	return text.substr(0, num_chars) + dots;
+	const String dots(U"...");
+	size_t fixedLength = 0;
+	while (albumListFont(text.substr(0, fixedLength) + dots).region().w < albumList_NameRRect.w && fixedLength <= text.length()) ++fixedLength;
+	--fixedLength;
+	return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 }
