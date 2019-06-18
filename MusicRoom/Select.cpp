@@ -30,6 +30,7 @@ Select::Select(const InitData& init) : IScene(init)
 	favImage = Texture(U"data\\Select\\favImage.png");
 	noimgImage = Texture(U"data\\Select\\noimgImage.png");
 	albumDetailImage = Texture(U"data\\Select\\albumDetailImage.png");
+	nowloadingImage = Texture(U"data\\Select\\nowloadingImage.png");
 	TextReader reader = TextReader(U"music\\album_list.txt");
 	getData().AlbumList.clear();
 	String dir;
@@ -97,6 +98,9 @@ void Select::update()
 						else
 						{
 							getData().selectedAlbumIndex = cnt;
+							backgroundImage.draw();
+							nowloadingImage.draw();
+							System::Update();
 							changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 						}
 					}
