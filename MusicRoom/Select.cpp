@@ -23,11 +23,13 @@ Select::Select(const InitData& init) : IScene(init)
 	// 変数 初期化
 	goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
 	goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
+	albumDetailFont = Font(18, U"data\\fontR.ttc");
 
 	// データ 読み込み
 	backgroundImage = Texture(U"data\\backgroundImage.png");
 	favImage = Texture(U"data\\Select\\favImage.png");
 	noimgImage = Texture(U"data\\Select\\noimgImage.png");
+	albumDetailImage = Texture(U"data\\Select\\albumDetailImage.png");
 	TextReader reader = TextReader(U"music\\album_list.txt");
 	getData().AlbumList.clear();
 	String dir;
@@ -181,8 +183,7 @@ Texture Select::getSelectedImage(int cnt) const
 void Select::drawDetails(int cnt) const
 {
 	const Point pos = Cursor::Pos();
-	static Font font(16);
-	static String name, creator;
+	String name, creator;
 	if (cnt == (signed)getData().AlbumList.size())
 	{
 		name = U"お気に入り";
@@ -190,17 +191,17 @@ void Select::drawDetails(int cnt) const
 	}
 	else
 	{
-		name = getData().AlbumList[cnt].name;
-		creator = getData().AlbumList[cnt].creator;
+		name = U"アルバム名：" + getData().AlbumList[cnt].name;
+		creator = U"作者：" + getData().AlbumList[cnt].creator;
 	}
-	const auto width = Max(font(name).region().w, font(creator).region().w);
+	const auto width = Max(albumDetailFont(name).region().w, albumDetailFont(creator).region().w);
 	static int x_addtion;
 	if (cnt % 3 == 0) x_addtion = 13;
 	if (cnt % 3 == 1) x_addtion = (-width / 2);
 	if (cnt % 3 == 2) x_addtion = -width;
-	RoundRect(pos.x + x_addtion, pos.y + 13, width + 27, 72, 27).drawShadow({ 0,15 }, 32, 10);
-	RoundRect(pos.x + x_addtion, pos.y + 13, width + 27, 72, 27).draw(Color({ 255,255,255 }, 120));
-	RoundRect(pos.x + x_addtion, pos.y + 13, width + 27, 72, 27).drawFrame(3);
-	font(name).draw(pos.x + x_addtion + 14, pos.y + 20, Color(16, 16, 16));
-	font(creator).draw(pos.x + x_addtion + 14, pos.y + 50, Color(16, 16, 16));
+	Rect(pos.x + x_addtion, pos.y + 13, width + 27, 72).drawShadow({ 5,5 }, 5);
+	Rect(pos.x + x_addtion, pos.y + 13, width + 27, 72)(albumDetailImage).draw();
+	Rect(pos.x + x_addtion, pos.y + 13, width + 27, 72).drawFrame(1, Palette::Black);
+	albumDetailFont(name).draw(pos.x + x_addtion + 14, pos.y + 20, Color(16, 16, 16));
+	albumDetailFont(creator).draw(pos.x + x_addtion + 14, pos.y + 50, Color(16, 16, 16));
 }

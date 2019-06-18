@@ -13,10 +13,11 @@ private:
 	const int scrollMillisec = 500;
 
 	std::vector<std::pair<int, int>>commentTime;
-	Texture backgroundImage, noimgImage, favImage;
+	Texture backgroundImage, noimgImage, favImage, albumDetailImage;
 	Grid<double_t>albumGrid;
 	Triangle goUpButton, goDownButton;
 	Stopwatch scrollTime;
+	Font albumDetailFont;
 	int AlbumListFirstIndex = 0, scrollFlag = 0;
 	double scrollAddY = 0;
 
