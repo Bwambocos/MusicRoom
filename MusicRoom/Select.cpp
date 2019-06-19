@@ -123,7 +123,7 @@ void Select::update()
 void Select::draw() const
 {
 	// ƒƒCƒ“”wŒi
-	backgroundImage.draw(0, barHeight);
+	backgroundImage.draw();
 	if (AlbumListFirstIndex > 0)
 	{
 		goUpButton.draw((goUpButton.mouseOver() ? Palette::Orange : Palette::White));
