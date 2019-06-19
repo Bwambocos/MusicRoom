@@ -18,10 +18,10 @@ Album::Album(const InitData& init) : IScene(init)
 	pauseImage = Texture(U"data\\Album\\pauseImage.png");
 	notFavImage = Texture(U"data\\Album\\notFavImage.png");
 	favImage = Texture(U"data\\Album\\favImage.png");
-	albumNameFont = Font(24);
-	albumCreatorFont = Font(18);
-	albumExplFont = Font(12);
-	albumListFont = Font(16);
+	albumNameFont = Font(28, U"data\\fontR.ttc");
+	albumCreatorFont = Font(28, U"data\\fontR.ttc");
+	albumExplFont = Font(16, U"data\\fontR.ttc");
+	albumListFont = Font(20, U"data\\fontR.ttc");
 	albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 12.5);
 	albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 10);
 	albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 10);
@@ -175,9 +175,9 @@ void Album::draw() const
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)albumNameRRect.x, (int)albumNameRRect.y, (int)albumNameRRect.w, (int)albumNameRRect.h));
-	albumNameFont(albumName).draw(draw_albumNameX, 27 + barHeight);
+	albumNameFont(albumName).draw(draw_albumNameX, 29 + barHeight);
 	Graphics2D::SetScissorRect(Rect((int)albumCreatorRRect.x, (int)albumCreatorRRect.y, (int)albumCreatorRRect.w, (int)albumCreatorRRect.h));
-	albumCreatorFont(albumCreator).draw(draw_albumCreatorX, 88 + barHeight);
+	albumCreatorFont(albumCreator).draw(draw_albumCreatorX, 85 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
 	albumExpl_draw();
 	albumNameRRect.drawFrame(0, 2, Palette::Gray);
