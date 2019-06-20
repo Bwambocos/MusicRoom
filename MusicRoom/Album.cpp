@@ -22,10 +22,10 @@ Album::Album(const InitData& init) : IScene(init)
 	albumCreatorFont = Font(28, U"data\\fontR.ttc");
 	albumExplFont = Font(16, U"data\\fontR.ttc");
 	albumListFont = Font(20, U"data\\fontR.ttc");
-	albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 12.5);
-	albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 10);
-	albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 10);
-	albumExplRRect = RoundRect(325, 133 + barHeight, 393, 142, 10);
+	albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 5);
+	albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 5);
+	albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 5);
+	albumExplRRect = RoundRect(325, 133 + barHeight, 393, 142, 5);
 	albumList_FlagRRect = RoundRect(25, 300 + barHeight, 36, 36, 5);
 	albumList_NameRRect = RoundRect(64, 300 + barHeight, 537, 36, 5);
 	albumList_TimeRRect = RoundRect(604, 300 + barHeight, 100, 36, 5);
@@ -140,15 +140,14 @@ void Album::draw() const
 {
 	// ”wŒi •`‰æ
 	backgroundImage.draw(0, barHeight);
-	albumImageRRect.drawShadow({ 0,15 }, 32, 10);
-	albumImageRRect.drawFrame(0, 3, Palette::Gray);
-	albumImageRRect.draw(Color(32, 32, 32, 120));
-	albumNameRRect.drawShadow({ 0,15 }, 32, 10);
-	albumNameRRect.draw(Color(32, 32, 32, 120));
-	albumCreatorRRect.drawShadow({ 0,15 }, 32, 10);
-	albumCreatorRRect.draw(Color(32, 32, 32, 120));
-	albumExplRRect.drawShadow({ 0,15 }, 32, 10);
-	albumExplRRect.draw(Color(32, 32, 32, 120));
+	albumImageRRect.draw(Color(64, 64, 64, 200));
+	albumImageRRect.drawFrame(1, Palette::Black);
+	albumNameRRect.draw(Color(64, 64, 64, 200));
+	albumNameRRect.drawFrame(1, Palette::Black);
+	albumCreatorRRect.draw(Color(64, 64, 64, 200));
+	albumCreatorRRect.drawFrame(1, Palette::Black);
+	albumExplRRect.draw(Color(64, 64, 64, 200));
+	albumExplRRect.drawFrame(1, Palette::Black);
 	if (MusicListFirstIndex > 0)
 	{
 		goUpButton.draw((goUpButton.mouseOver() ? Palette::Orange : Palette::White));
@@ -180,9 +179,6 @@ void Album::draw() const
 	albumCreatorFont(albumCreator).draw(draw_albumCreatorX, 85 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
 	albumExpl_draw();
-	albumNameRRect.drawFrame(0, 2, Palette::Gray);
-	albumCreatorRRect.drawFrame(0, 2, Palette::Gray);
-	albumExplRRect.drawFrame(0, 2, Palette::Gray);
 
 	// ‹ÈƒŠƒXƒg •`‰æ
 	for (int i = MusicListFirstIndex; (i - MusicListFirstIndex) < Min<int>(5, (int)getData().MusicList[albumDir].size() - MusicListFirstIndex); ++i)
