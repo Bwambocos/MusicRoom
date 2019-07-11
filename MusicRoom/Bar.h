@@ -22,7 +22,7 @@ private:
 	Rect fieldRect;
 	RoundRect mainRect;
 	String mainText = U"", albumName, albumDir;
-	Font mainFont, timeFont;
+	Font mainFont;
 	Audio dog;
 	int64 musicSamplesPlayed = 0;
 	Stopwatch draw_mainTextTime;

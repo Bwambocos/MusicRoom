@@ -9,26 +9,26 @@
 Bar::Bar()
 {
 	// èââÒÇÃÇ›
-	playImage_all[0] = Texture(U"data\\Bar\\play\\normal.png");
-	playImage_all[1] = Texture(U"data\\Bar\\play\\active.png");
-	pauseImage_all[0] = Texture(U"data\\Bar\\pause\\normal.png");
-	pauseImage_all[1] = Texture(U"data\\Bar\\pause\\active.png");
-	stopImage_all[0] = Texture(U"data\\Bar\\stop\\normal.png");
-	stopImage_all[1] = Texture(U"data\\Bar\\stop\\active.png");
-	seekImage_all[0] = Texture(U"data\\Bar\\seek\\normal.png");
-	seekImage_all[1] = Texture(U"data\\Bar\\seek\\active.png");
-	repImage_all[0] = Texture(U"data\\Bar\\rep\\normal.png");
-	repImage_all[1] = Texture(U"data\\Bar\\rep\\active.png");
-	prevImage_all[0] = Texture(U"data\\Bar\\prev\\normal.png");
-	prevImage_all[1] = Texture(U"data\\Bar\\prev\\active.png");
-	nextImage_all[0] = Texture(U"data\\Bar\\next\\normal.png");
-	nextImage_all[1] = Texture(U"data\\Bar\\next\\active.png");
-	backImage_all[0] = Texture(U"data\\Bar\\Back\\normal.png");
-	backImage_all[1] = Texture(U"data\\Bar\\Back\\active.png");
-	goImage_all[0] = Texture(U"data\\Bar\\Go\\normal.png");
-	goImage_all[1] = Texture(U"data\\Bar\\Go\\active.png");
-	shareImage_all[0] = Texture(U"data\\Bar\\Share\\normal.png");
-	shareImage_all[1] = Texture(U"data\\Bar\\Share\\active.png");
+	playImage_all[0] = Texture(U"data\\Bar\\playNormal.png");
+	playImage_all[1] = Texture(U"data\\Bar\\playActive.png");
+	pauseImage_all[0] = Texture(U"data\\Bar\\pauseNormal.png");
+	pauseImage_all[1] = Texture(U"data\\Bar\\pauseActive.png");
+	stopImage_all[0] = Texture(U"data\\Bar\\stopNormal.png");
+	stopImage_all[1] = Texture(U"data\\Bar\\stopActive.png");
+	seekImage_all[0] = Texture(U"data\\Bar\\seekNormal.png");
+	seekImage_all[1] = Texture(U"data\\Bar\\seekActive.png");
+	repImage_all[0] = Texture(U"data\\Bar\\repNormal.png");
+	repImage_all[1] = Texture(U"data\\Bar\\repActive.png");
+	prevImage_all[0] = Texture(U"data\\Bar\\prevNormal.png");
+	prevImage_all[1] = Texture(U"data\\Bar\\prevActive.png");
+	nextImage_all[0] = Texture(U"data\\Bar\\nextNormal.png");
+	nextImage_all[1] = Texture(U"data\\Bar\\nextActive.png");
+	backImage_all[0] = Texture(U"data\\Bar\\backNormal.png");
+	backImage_all[1] = Texture(U"data\\Bar\\backActive.png");
+	goImage_all[0] = Texture(U"data\\Bar\\goNormal.png");
+	goImage_all[1] = Texture(U"data\\Bar\\goActive.png");
+	shareImage_all[0] = Texture(U"data\\Bar\\shareNormal.png");
+	shareImage_all[1] = Texture(U"data\\Bar\\shareActive.png");
 	playImage_display = playImage_all[0];
 	pauseImage_display = pauseImage_all[0];
 	stopImage_display = stopImage_all[0];
@@ -41,8 +41,7 @@ Bar::Bar()
 	shareImage_display = shareImage_all[0];
 	fieldRect = Rect(0, 0, GameInfo::Width, barHeight);
 	mainRect = RoundRect(192, 0, mainRectWidth, barHeight, 16);
-	mainFont = Font(18);
-	timeFont = Font(12);
+	mainFont = Font(26, U"data\\fontR.ttc");
 	dog = Audio(U"data\\Bar\\dog.mp3");
 }
 
@@ -215,8 +214,9 @@ void Bar::update(GameData& getData, MyApp& manager)
 // ï`âÊ
 void Bar::draw(GameData getData)
 {
-	fieldRect.draw(Color(204, 61, 104));
-	mainRect.draw(Color(224, 67, 114));
+	fieldRect.draw(Color(200, 200, 200));
+	mainRect.draw(Color(100, 100, 100));
+	fieldRect.drawFrame(2, 0, Palette::Black);
 
 	Audio& nowMusic = ((getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
 		? (getData.selectedFavMusicIndex == -1 ? Audio() : getData.FavMusicList[getData.selectedFavMusicIndex].music)
@@ -225,30 +225,30 @@ void Bar::draw(GameData getData)
 	// É{É^Éì ï`âÊ
 	if (draw_back_flag) backImage_display.draw(10, 10);
 	if (draw_go_flag) goImage_display.draw(GameInfo::Width - 10 - goImage_display.width(), 10);
-	int x = 768 / 2 - mainRectWidth / 2 - 40 * 3;
+	int x = 768 / 2 - mainRectWidth / 2 - 40 * 3 + 20;
 	for (int cou = 0; cou < 6; ++cou)
 	{
 		switch (cou)
 		{
 		case 0:
-			prevImage_display.draw(x, 12);
+			prevImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			break;
 		case 1:
-			if (nowMusic.isPlaying()) pauseImage_display.draw(x, 12);
-			else playImage_display.draw(x, 12);
+			if (nowMusic.isPlaying()) pauseImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
+			else playImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			break;
 		case 2:
-			repImage_display.draw(x, 12);
+			repImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			x += mainRectWidth;
 			break;
 		case 3:
-			stopImage_display.draw(x, 12);
+			stopImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			break;
 		case 4:
-			shareImage_display.draw(x, 12);
+			shareImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			break;
 		case 5:
-			nextImage_display.draw(x, 12);
+			nextImage_display.drawAt(x, mainRect.y + mainRect.h / 2);
 			break;
 		}
 		x += 40;
@@ -259,7 +259,7 @@ void Bar::draw(GameData getData)
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)mainRect.x, (int)mainRect.y, (int)mainRect.w, (int)mainRect.h));
-	mainFont(mainText).draw(draw_mainText_x, 15);
+	mainFont(mainText).draw(draw_mainText_x, 12);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
 }
 
