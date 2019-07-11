@@ -84,7 +84,7 @@ struct GameData
 	{
 		const String dots(U"...");
 		size_t fixedLength = 0;
-		while (Font(16)(text.substr(0, fixedLength) + dots).region().w < 537 && fixedLength <= text.length()) ++fixedLength;
+		while (Font(20, U"data\\fontR.ttc")(text.substr(0, fixedLength) + dots).region().w < 537 && fixedLength <= text.length()) ++fixedLength;
 		--fixedLength;
 		return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 	}

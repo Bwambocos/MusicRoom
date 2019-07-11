@@ -18,7 +18,7 @@ Fav::Fav(const InitData& init) : IScene(init)
 	pauseImage = Texture(U"data\\Album\\pauseImage.png");
 	notFavImage = Texture(U"data\\Album\\notFavImage.png");
 	favImage = Texture(U"data\\Album\\favImage.png");
-	albumListFont = Font(16);
+	albumListFont = Font(20, U"data\\fontR.ttc");
 	albumList_FlagRect = RoundRect(25, 25 + barHeight, 36, 36, 5);
 	albumList_NameRect = RoundRect(64, 25 + barHeight, 537, 36, 5);
 	albumList_TimeRect = RoundRect(604, 25 + barHeight, 100, 36, 5);
