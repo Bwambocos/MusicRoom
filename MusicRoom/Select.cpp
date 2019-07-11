@@ -55,12 +55,12 @@ void Select::update()
 	// スクロール 更新
 	if (scrollFlag == 0)
 	{
-		if (AlbumListFirstIndex > 0 && (goUpButton.leftClicked() || Mouse::Wheel() < 0))
+		if (getData().AlbumListFirstIndex > 0 && (goUpButton.leftClicked() || Mouse::Wheel() < 0))
 		{
 			scrollFlag = 1;
 			scrollTime.restart();
 		}
-		if (AlbumListFirstIndex + 5 <= (signed)getData().AlbumList.size() && (goDownButton.leftClicked() || Mouse::Wheel() > 0))
+		if (getData().AlbumListFirstIndex + 5 <= (signed)getData().AlbumList.size() && (goDownButton.leftClicked() || Mouse::Wheel() > 0))
 		{
 			scrollFlag = 2;
 			scrollTime.restart();
@@ -70,16 +70,16 @@ void Select::update()
 	{
 		if (scrollTime.ms() >= scrollMillisec)
 		{
-			AlbumListFirstIndex += (scrollFlag == 1 ? -3 : 3);
+			getData().AlbumListFirstIndex += (scrollFlag == 1 ? -3 : 3);
 			scrollAddY = scrollFlag = 0;
-			AlbumListFirstIndex = Max(AlbumListFirstIndex, 0);
-			AlbumListFirstIndex = Min<int>(AlbumListFirstIndex, (int)getData().AlbumList.size() / 3 * 3);
+			getData().AlbumListFirstIndex = Max(getData().AlbumListFirstIndex, 0);
+			getData().AlbumListFirstIndex = Min<int>(getData().AlbumListFirstIndex, (int)getData().AlbumList.size() / 3 * 3);
 		}
 		else scrollAddY = (double)(scrollFlag == 1 ? 246 : -246) * scrollTime.ms() / scrollMillisec;
 	}
 
 	// album_list 更新
-	int cnt = AlbumListFirstIndex - 3;
+	int cnt = getData().AlbumListFirstIndex - 3;
 	for (int y = -1; y <= (signed)albumGrid.height(); ++y)
 	{
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
@@ -124,19 +124,19 @@ void Select::draw() const
 {
 	// メイン背景
 	backgroundImage.draw();
-	if (AlbumListFirstIndex > 0)
+	if (getData().AlbumListFirstIndex > 0)
 	{
 		goUpButton.draw((goUpButton.mouseOver() ? Palette::Orange : Palette::White));
 		goUpButton.drawFrame(2, Palette::Black);
 	}
-	if (AlbumListFirstIndex + 5 <= (signed)getData().AlbumList.size())
+	if (getData().AlbumListFirstIndex + 5 <= (signed)getData().AlbumList.size())
 	{
 		goDownButton.draw((goDownButton.mouseOver() ? Palette::Orange : Palette::White));
 		goDownButton.drawFrame(2, Palette::Black);
 	}
 
 	// album_list 描画
-	int cnt = AlbumListFirstIndex - 3;
+	int cnt = getData().AlbumListFirstIndex - 3;
 	for (int y = -1; y <= (signed)albumGrid.height(); ++y)
 	{
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
@@ -155,7 +155,7 @@ void Select::draw() const
 		}
 		if (cnt == (signed)getData().AlbumList.size() + 1) break;
 	}
-	cnt = AlbumListFirstIndex;
+	cnt = getData().AlbumListFirstIndex;
 	for (int y = 0; y <= (signed)albumGrid.height(); ++y)
 	{
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)

@@ -43,7 +43,7 @@ struct GameData
 	String prevScene, nowScene;
 
 	std::vector<AlbumData> AlbumList;
-	int selectedAlbumIndex = -1;
+	int selectedAlbumIndex = -1, AlbumListFirstIndex = 0;
 
 	std::map<String, std::vector<MusicData>> MusicList;
 	int selectedMusicIndex = -1;

@@ -18,7 +18,7 @@ private:
 	Triangle goUpButton, goDownButton;
 	Stopwatch scrollTime;
 	Font albumDetailFont;
-	int AlbumListFirstIndex = 0, scrollFlag = 0;
+	int scrollFlag = 0;
 	double scrollAddY = 0;
 
 public:
