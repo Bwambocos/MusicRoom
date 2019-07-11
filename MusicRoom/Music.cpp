@@ -17,25 +17,25 @@ Music::Music(const InitData& init) : IScene(init)
 	}
 
 	backgroundImage = Texture(U"data\\backgroundImage.png");
-	playImage_all[0] = Texture(U"data\\Music\\play\\normal.png");
-	playImage_all[1] = Texture(U"data\\Music\\play\\active.png");
-	pauseImage_all[0] = Texture(U"data\\Music\\pause\\normal.png");
-	pauseImage_all[1] = Texture(U"data\\Music\\pause\\active.png");
-	stopImage_all[0] = Texture(U"data\\Music\\stop\\normal.png");
-	stopImage_all[1] = Texture(U"data\\Music\\stop\\active.png");
-	seekImage_all[0] = Texture(U"data\\Music\\seek\\normal.png");
-	seekImage_all[1] = Texture(U"data\\Music\\seek\\active.png");
-	repImage_all[0] = Texture(U"data\\Music\\rep\\normal.png");
-	repImage_all[1] = Texture(U"data\\Music\\rep\\active.png");
+	playImage_all[0] = Texture(U"data\\Music\\playNormal.png");
+	playImage_all[1] = Texture(U"data\\Music\\playActive.png");
+	pauseImage_all[0] = Texture(U"data\\Music\\pauseNormal.png");
+	pauseImage_all[1] = Texture(U"data\\Music\\pauseActive.png");
+	stopImage_all[0] = Texture(U"data\\Music\\stopNormal.png");
+	stopImage_all[1] = Texture(U"data\\Music\\stopActive.png");
+	seekImage_all[0] = Texture(U"data\\Music\\seekNormal.png");
+	seekImage_all[1] = Texture(U"data\\Music\\seekActive.png");
+	repImage_all[0] = Texture(U"data\\Music\\repNormal.png");
+	repImage_all[1] = Texture(U"data\\Music\\repActive.png");
 	favedImage = Texture(U"data\\Music\\favedImage.png");
 	notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
-	musicNameAndTimeFont = Font(18);
-	musicExplFont = Font(16);
-	musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 10);
-	musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 10);
-	musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 10);
-	musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 5);
-	musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 10);
+	musicNameAndTimeFont = Font(28, U"data\\fontR.ttc");
+	musicExplFont = Font(20, U"data\\fontR.ttc");
+	musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 5);
+	musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 5);
+	musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 5);
+	musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 15);
+	musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 5);
 	playImage_display = playImage_all[0];
 	pauseImage_display = pauseImage_all[0];
 	stopImage_display = stopImage_all[0];
@@ -70,7 +70,7 @@ Music::Music(const InitData& init) : IScene(init)
 				break;
 			}
 		}
-	} 
+	}
 	for (size_t i = 0; i < musicComment_separeted.size(); ++i)
 	{
 		const int32 y = static_cast<int32>(musicExplRect.y + 10 + i * musicExplFont.height());
@@ -196,22 +196,21 @@ void Music::draw() const
 		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
 
 	// îwåi ï`âÊ
-	backgroundImage.draw(0, barHeight);
+	backgroundImage.draw();
 	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Window::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
-	musicNameRect.drawShadow({ 0,15 }, 32, 10);
-	musicNameRect.draw(Color(32, 32, 32, 120));
-	musicTimeRect.drawShadow({ 0,15 }, 32, 10);
-	musicTimeRect.draw(Color(32, 32, 32, 120));
-	musicFavRect.drawShadow({ 0,15 }, 32, 10);
-	musicFavRect.draw(Color(32, 32, 32, 120));
+	musicNameRect.draw(Color(64, 64, 64, 200));
+	musicNameRect.drawFrame(1, Palette::Black);
+	musicTimeRect.draw(Color(64, 64, 64, 200));
+	musicTimeRect.drawFrame(1, Palette::Black);
+	musicFavRect.draw(Color(64, 64, 64, 200));
+	musicFavRect.drawFrame(1, Palette::Black);
 
 	// çƒê∂ÉoÅ[
 	// ÉoÅ[
-	musicSeekRect.drawShadow({ 0,15 }, 32, 10);
-	musicSeekRect.drawFrame(3);
-	musicSeekRect.draw(Color(32, 32, 32, 120));
+	musicSeekRect.draw(Color(64, 64, 64, 200));
 	const RoundRect tmpRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.h, musicSeekRect.r);
-	tmpRect.draw(Color(0, 200, 0, 120));
+	tmpRect.draw(Color(0, 200, 0, 200));
+	musicSeekRect.drawFrame(1, Palette::Black);
 
 	// Seek
 	auto x = musicSeekRect.x + musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples();
@@ -221,23 +220,19 @@ void Music::draw() const
 	(nowMusic.isPlaying() ? pauseImage_display : playImage_display).drawAt(45, musicSeekRect.y + musicSeekRect.h / 2);
 	repImage_display.drawAt(90, musicSeekRect.y + musicSeekRect.h / 2);
 	stopImage_display.drawAt(723, musicSeekRect.y + musicSeekRect.h / 2);
-	musicExplRect.drawShadow({ 0,15 }, 32, 10);
-	musicExplRect.drawFrame(3);
-	musicExplRect.draw(Color(32, 32, 32, 120));
+	musicExplRect.draw(Color(64, 64, 64, 200));
+	musicExplRect.drawFrame(1, Palette::Black);
 
 	// ã»èÓïÒ ï`âÊ
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)musicNameRect.x, (int)musicNameRect.y, (int)musicNameRect.w, (int)musicNameRect.h));
-	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 31 + barHeight);
+	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 28 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
-	musicNameAndTimeFont(musicTotalTime).draw(504, 31 + barHeight);
+	musicNameAndTimeFont(musicTotalTime).draw(504, 28 + barHeight);
 	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + barHeight);
 	musicExpl_draw();
-	musicNameRect.drawFrame(0, 2, Palette::Gray);
-	musicTimeRect.drawFrame(0, 2, Palette::Gray);
-	musicFavRect.drawFrame(0, 2, Palette::Gray);
 }
 
 // ã»ê‡ñæ ï`âÊ
