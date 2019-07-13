@@ -23,7 +23,7 @@ private:
 	RoundRect mainRect;
 	String mainText = U"", albumName, albumDir;
 	Font mainFont;
-	Audio dog;
+	Audio dog, tempAudio;
 	int64 musicSamplesPlayed = 0;
 	Stopwatch draw_mainTextTime;
 	bool draw_back_flag = false, draw_go_flag = false, draw_mainText_stayFlag = true, musicHasChangedFlag = false;

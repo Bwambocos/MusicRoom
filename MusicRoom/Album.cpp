@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Album.h"
 #include "Select.h"
 
@@ -116,7 +115,8 @@ void Album::update()
 			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) getData().MusicList[albumDir][getData().selectedMusicIndex].music.stop();
 			getData().selectedMusicIndex = i;
 			auto& newMusic = getData().MusicList[albumDir][getData().selectedMusicIndex].music;
-			(newMusic.isPlaying() ? newMusic.pause() : newMusic.play());
+			if (newMusic.isPlaying()) newMusic.pause();
+			else newMusic.play();
 		}
 		rect = RoundRect(albumList_FavRRect.x, albumList_FavRRect.y + num * 39, albumList_FavRRect.w, albumList_FavRRect.h, albumList_FavRRect.r);
 		if (rect.leftClicked())
@@ -177,7 +177,7 @@ void Album::draw() const
 	albumNameFont(albumName).draw(draw_albumNameX, 29 + barHeight);
 	Graphics2D::SetScissorRect(Rect((int)albumCreatorRRect.x, (int)albumCreatorRRect.y, (int)albumCreatorRRect.w, (int)albumCreatorRRect.h));
 	albumCreatorFont(albumCreator).draw(draw_albumCreatorX, 85 + barHeight);
-	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
+	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 	albumExpl_draw();
 
 	// ã»ÉäÉXÉg ï`âÊ
@@ -281,7 +281,7 @@ void Album::albumExpl_draw() const
 		const int32 y = static_cast<int32>(draw_albumExpl_y + i * albumExplFont.height());
 		albumExplFont(albumComment_Separeted[i]).draw(albumExplRRect.x + 10, y);
 	}
-	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
+	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 }
 
 // ã»ñºíZèk

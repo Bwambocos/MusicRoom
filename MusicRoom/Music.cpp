@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Bar.h"
 #include "Music.h"
 
@@ -125,8 +124,8 @@ void Music::update()
 		musicTotalTime = Format(Pad(selectedMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(selectedMusicData.totalTime % 60, std::make_pair(2, U'0')));
 	}
 	Audio& nowMusic = (getData().prevScene == U"Fav"
-		? (getData().selectedFavMusicIndex == -1 ? Audio() : getData().FavMusicList[getData().selectedFavMusicIndex].music)
-		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
+		? (getData().selectedFavMusicIndex == -1 ? tempAudio1 : getData().FavMusicList[getData().selectedFavMusicIndex].music)
+		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? tempAudio1 : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
 
 	// çƒê∂ÉoÅ[ çXêV
 	// ÉoÅ[
@@ -146,7 +145,11 @@ void Music::update()
 	Circle tmpCircle(45, musicSeekRect.y + musicSeekRect.h / 2, 15);
 	playImage_display = playImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
 	pauseImage_display = pauseImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
-	if (tmpCircle.leftClicked() || KeyEnter.pressed()) (nowMusic.isPlaying() ? nowMusic.pause() : nowMusic.play());
+	if (tmpCircle.leftClicked() || KeyEnter.pressed())
+	{
+		if (nowMusic.isPlaying()) nowMusic.pause();
+		else nowMusic.play();
+	}
 	tmpCircle = Circle(90, musicSeekRect.y + musicSeekRect.h / 2, 15);
 	repImage_display = repImage_all[((tmpCircle.mouseOver() || getData().selectedMusicLoopFlag) ? 1 : 0)];
 	if (tmpCircle.leftClicked() || KeyShift.pressed())
@@ -191,13 +194,13 @@ void Music::update()
 // ï`âÊ
 void Music::draw() const
 {
-	Audio& nowMusic = (getData().prevScene == U"Fav"
-		? (getData().selectedFavMusicIndex == -1 ? Audio() : getData().FavMusicList[getData().selectedFavMusicIndex].music)
-		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? Audio() : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
+	const Audio& nowMusic = (getData().prevScene == U"Fav"
+		? (getData().selectedFavMusicIndex == -1 ? tempAudio2 : getData().FavMusicList[getData().selectedFavMusicIndex].music)
+		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? tempAudio2 : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
 
 	// îwåi ï`âÊ
 	backgroundImage.draw();
-	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Window::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
+	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Scene::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
 	musicNameRect.draw(Color(64, 64, 64, 200));
 	musicNameRect.drawFrame(1, Palette::Black);
 	musicTimeRect.draw(Color(64, 64, 64, 200));
@@ -229,7 +232,7 @@ void Music::draw() const
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)musicNameRect.x, (int)musicNameRect.y, (int)musicNameRect.w, (int)musicNameRect.h));
 	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 28 + barHeight);
-	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
+	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 	musicNameAndTimeFont(musicTotalTime).draw(504, 28 + barHeight);
 	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + barHeight);
 	musicExpl_draw();

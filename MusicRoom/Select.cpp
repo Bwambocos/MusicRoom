@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Bar.h"
 #include "Select.h"
 
