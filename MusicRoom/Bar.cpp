@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Bar.h"
 
 // ステータスバー
@@ -61,8 +60,8 @@ void Bar::update(GameData& getData, MyApp& manager)
 		albumName = (getData.selectedAlbumIndex == -1 ? U"" : getData.AlbumList[getData.selectedAlbumIndex].name);
 	}
 	Audio& nowMusic = ((getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
-		? (getData.selectedFavMusicIndex == -1 ? Audio() : getData.FavMusicList[getData.selectedFavMusicIndex].music)
-		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? Audio() : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
+		? (getData.selectedFavMusicIndex == -1 ? tempAudio : getData.FavMusicList[getData.selectedFavMusicIndex].music)
+		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? tempAudio : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
 
 	if (musicHasChangedFlag)
 	{
@@ -219,8 +218,8 @@ void Bar::draw(GameData getData)
 	fieldRect.drawFrame(2, 0, Palette::Black);
 
 	Audio& nowMusic = ((getData.nowScene == U"Fav" || getData.prevScene == U"Fav")
-		? (getData.selectedFavMusicIndex == -1 ? Audio() : getData.FavMusicList[getData.selectedFavMusicIndex].music)
-		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? Audio() : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
+		? (getData.selectedFavMusicIndex == -1 ? tempAudio : getData.FavMusicList[getData.selectedFavMusicIndex].music)
+		: (getData.selectedMusicIndex == -1 || getData.MusicList[albumDir].empty() ? tempAudio : getData.MusicList[albumDir][getData.selectedMusicIndex].music));
 
 	// ボタン 描画
 	if (draw_back_flag) backImage_display.draw(10, 10);
@@ -260,7 +259,7 @@ void Bar::draw(GameData getData)
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)mainRect.x, (int)mainRect.y, (int)mainRect.w, (int)mainRect.h));
 	mainFont(mainText).draw(draw_mainText_x, 12);
-	Graphics2D::SetScissorRect(Rect(0, 0, Window::Width(), Window::Height()));
+	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 }
 
 // 曲名描画位置 更新

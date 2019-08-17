@@ -20,6 +20,7 @@ private:
 	FFTResult musicFFT;
 	Stopwatch draw_musicNameTime;
 	Array<String> musicComment_separeted;
+	Audio tempAudio1; const Audio tempAudio2;
 	double draw_musicNameX;
 	bool draw_musicNameStayFlag, seekButtonFlag = false;
 

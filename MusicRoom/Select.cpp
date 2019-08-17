@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Bar.h"
 #include "Select.h"
 
@@ -85,7 +84,7 @@ void Select::update()
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
 		{
 			Rect rect = Select::makeRect(x, y);
-			rect.y += scrollAddY;
+			rect.y += (int)scrollAddY;
 			if (cnt >= 0)
 			{
 				if (rect.mouseOver())
@@ -100,7 +99,7 @@ void Select::update()
 							getData().selectedAlbumIndex = cnt;
 							backgroundImage.draw();
 							nowloadingImage.draw();
-							System::Update();
+							if (!System::Update()) System::Exit();
 							changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 						}
 					}
@@ -142,7 +141,7 @@ void Select::draw() const
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
 		{
 			Rect rect = Select::makeRect(x, y);
-			rect.y += scrollAddY;
+			rect.y += (int)scrollAddY;
 			const double s = albumGrid[y + 1][x + 1];
 			if (cnt >= 0)
 			{
@@ -161,7 +160,7 @@ void Select::draw() const
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
 		{
 			Rect rect = Select::makeRect(x, y);
-			rect.y += scrollAddY;
+			rect.y += (int)scrollAddY;
 			if (rect.mouseOver() && commentTime[cnt].second - commentTime[cnt].first >= commentMillisec) drawDetails(cnt);
 			++cnt;
 			if (cnt == (signed)getData().AlbumList.size() + 1) break;

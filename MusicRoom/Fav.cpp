@@ -1,6 +1,5 @@
 // include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Bar.h"
 #include "Fav.h"
 
@@ -49,7 +48,8 @@ void Fav::update()
 		if (rect.leftClicked())
 		{
 			if (getData().selectedFavMusicIndex != i) getData().selectedFavMusicIndex = i;
-			(getData().FavMusicList[getData().selectedFavMusicIndex].music.isPlaying() ? getData().FavMusicList[getData().selectedFavMusicIndex].music.pause() : getData().FavMusicList[getData().selectedFavMusicIndex].music.play());
+			if (getData().FavMusicList[getData().selectedFavMusicIndex].music.isPlaying()) getData().FavMusicList[getData().selectedFavMusicIndex].music.pause();
+			else getData().FavMusicList[getData().selectedFavMusicIndex].music.play();
 		}
 		rect = RoundRect(albumList_FavRect.x, albumList_FavRect.y + num * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r);
 		if (rect.leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.music_name, music.music_dir, music.comment, music.music));
