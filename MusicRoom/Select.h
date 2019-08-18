@@ -9,15 +9,15 @@ class Select : public MyApp::Scene
 private:
 
 	// const
+	const size_t albumGridWidth = 5;
 	const int commentMillisec = 1000;
 	const int scrollMillisec = 500;
+	const int tileSize = 226;
 
-	std::vector<std::pair<int, int>>commentTime;
-	Texture backgroundImage, noimgImage, favImage, albumDetailImage, nowloadingImage;
 	Grid<double_t>albumGrid;
-	Triangle goUpButton, goDownButton;
+	Array<std::pair<int, int>>commentTime;
 	Stopwatch scrollTime;
-	Font albumDetailFont;
+	Vec2 goUpPos, goDownPos;
 	int scrollFlag = 0;
 	double scrollAddY = 0;
 
