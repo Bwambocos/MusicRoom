@@ -10,8 +10,8 @@
 void Main()
 {
 	Window::Resize(GameInfo::Width, GameInfo::Height + barHeight);
+	Scene::SetBackground(ColorF(0.7, 0.8, 0.7));
 	Window::SetTitle(GameInfo::Title);
-	Window::SetStyle(WindowStyle::Sizable);
 
 	MyApp manager;
 	manager.setFadeColor(GameInfo::FadeInColor);
