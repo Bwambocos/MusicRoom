@@ -17,8 +17,6 @@ private:
 	const int draw_moveYPerSec = 12;
 
 	// ÉOÉçÅ[ÉoÉãïœêî
-	Texture backgroundImage, playImage, pauseImage, notFavImage, favImage, albumImage;
-	Font albumNameFont, albumCreatorFont, albumExplFont, albumListFont;
 	RoundRect albumImageRRect, albumNameRRect, albumCreatorRRect, albumExplRRect, albumList_FlagRRect, albumList_NameRRect, albumList_TimeRRect, albumList_FavRRect, albumListAllRRect, albumListCellRRect;
 	Triangle goUpButton, goDownButton;
 	Stopwatch draw_albumNameTime, draw_albumCreatorTime, draw_albumExplTime;

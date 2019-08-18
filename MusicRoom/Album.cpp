@@ -8,19 +8,19 @@
 // èâä˙âª
 Album::Album(const InitData& init) : IScene(init)
 {
+	// ÉAÉZÉbÉgä«óùìoò^
+	TextureAsset::Register(U"Album.play", Icon(0xf144, 36));
+	TextureAsset::Register(U"Album.pause", Icon(0xf28b, 36));
+	TextureAsset::Register(U"Album.fav", Icon(0xf005, 36));
+	FontAsset::Register(U"Album.albumName", 28, U"data\\fontR.ttc");
+	FontAsset::Register(U"Album.albumCreator", 28, U"data\\fontR.ttc");
+	FontAsset::Register(U"Album.albumExpl", 16, U"data\\fontR.ttc");
+	FontAsset::Register(U"Album.albumList", 20, U"data\\fontR.ttc");
+
 	// ÉVÅ[ÉìèÛãµ çXêV
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Album";
 
-	backgroundImage = Texture(U"data\\backgroundImage.png");
-	playImage = Texture(U"data\\Album\\playImage.png");
-	pauseImage = Texture(U"data\\Album\\pauseImage.png");
-	notFavImage = Texture(U"data\\Album\\notFavImage.png");
-	favImage = Texture(U"data\\Album\\favImage.png");
-	albumNameFont = Font(28, U"data\\fontR.ttc");
-	albumCreatorFont = Font(28, U"data\\fontR.ttc");
-	albumExplFont = Font(16, U"data\\fontR.ttc");
-	albumListFont = Font(20, U"data\\fontR.ttc");
 	albumImageRRect = RoundRect(25, 25 + barHeight, 250, 250, 5);
 	albumNameRRect = RoundRect(325, 25 + barHeight, 393, 54, 5);
 	albumCreatorRRect = RoundRect(325, 82 + barHeight, 393, 48, 5);
@@ -50,7 +50,6 @@ Album::Album(const InitData& init) : IScene(init)
 	albumDir = getData().AlbumList[getData().selectedAlbumIndex].dir;
 	albumCreator = getData().AlbumList[getData().selectedAlbumIndex].creator;
 	albumComment = getData().AlbumList[getData().selectedAlbumIndex].comment;
-	albumImage = getData().AlbumList[getData().selectedAlbumIndex].image;
 	MusicListFirstIndex = 0;
 	albumComment_Separeted.clear();
 	size_t pos = 0;
@@ -58,7 +57,7 @@ Album::Album(const InitData& init) : IScene(init)
 	{
 		for (int i = 0; i + pos < (int)albumComment.length(); ++i)
 		{
-			if (albumExplFont(albumComment.substr(pos, i)).region().w >= albumExplRRect.w - 10)
+			if (FontAsset(U"Album.albumExpl")(albumComment.substr(pos, i)).region().w >= albumExplRRect.w - 10)
 			{
 				albumComment_Separeted.push_back(albumComment.substr(pos, i - 1));
 				pos += (i - 1);
@@ -83,12 +82,11 @@ Album::Album(const InitData& init) : IScene(init)
 		while (reader1.readLine(musicDir))
 		{
 			String musicName, musicComment;
-			Audio music = Audio(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
 			TextReader reader2(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 			reader2.readLine(musicName);
 			String temp; while (reader2.readLine(temp)) musicComment += temp + U"\n";
-			if (music.isEmpty()) musicName = U"ÅIì«Ç›çûÇ›é∏îsÅI";
-			getData().MusicList[albumDir].push_back({ music, musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
+			getData().MusicList[albumDir].push_back({ Audio(), musicName, musicDir, musicComment, compressMusicName(musicName), 0 });
 		}
 	}
 }
@@ -112,9 +110,9 @@ void Album::update()
 		RoundRect rect(albumList_FlagRRect.x, albumList_FlagRRect.y + num * 39, albumList_FlagRRect.w, albumList_FlagRRect.h, albumList_FlagRRect.r);
 		if (rect.leftClicked())
 		{
-			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) getData().MusicList[albumDir][getData().selectedMusicIndex].music.stop();
+			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir).stop();
 			getData().selectedMusicIndex = i;
-			auto& newMusic = getData().MusicList[albumDir][getData().selectedMusicIndex].music;
+			auto newMusic = AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir);
 			if (newMusic.isPlaying()) newMusic.pause();
 			else newMusic.play();
 		}
@@ -126,9 +124,9 @@ void Album::update()
 		rect = RoundRect(albumListCellRRect.x, albumListCellRRect.y + num * 39, albumListCellRRect.w, albumListCellRRect.h, albumListCellRRect.r);
 		if (rect.leftClicked())
 		{
-			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) getData().MusicList[albumDir][getData().selectedMusicIndex].music.stop();
+			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir).stop();
 			getData().selectedMusicIndex = i;
-			auto& newMusic = getData().MusicList[albumDir][getData().selectedMusicIndex].music;
+			auto newMusic = AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir);
 			if (!newMusic.isPlaying()) newMusic.play();
 			changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
@@ -139,7 +137,6 @@ void Album::update()
 void Album::draw() const
 {
 	// îwåi ï`âÊ
-	backgroundImage.draw(0, barHeight);
 	albumImageRRect.draw(Color(64, 64, 64, 200));
 	albumImageRRect.drawFrame(1, Palette::Black);
 	albumNameRRect.draw(Color(64, 64, 64, 200));
@@ -168,15 +165,15 @@ void Album::draw() const
 
 	// ÉAÉãÉoÉÄèÓïÒ ï`âÊ
 	const Rect rect((int)37.5, (int)37.5 + barHeight, 225, 225);
-	rect(albumImage).draw();
+	rect(TextureAsset(U"album-" + albumDir + U".image")).draw();
 	rect.drawFrame(0, 2, Color(200, 200, 200));
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)albumNameRRect.x, (int)albumNameRRect.y, (int)albumNameRRect.w, (int)albumNameRRect.h));
-	albumNameFont(albumName).draw(draw_albumNameX, 29 + barHeight);
+	FontAsset(U"Album.albumName")(albumName).draw(draw_albumNameX, 29 + barHeight);
 	Graphics2D::SetScissorRect(Rect((int)albumCreatorRRect.x, (int)albumCreatorRRect.y, (int)albumCreatorRRect.w, (int)albumCreatorRRect.h));
-	albumCreatorFont(albumCreator).draw(draw_albumCreatorX, 85 + barHeight);
+	FontAsset(U"Album.albumCreator")(albumCreator).draw(draw_albumCreatorX, 85 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 	albumExpl_draw();
 
@@ -186,13 +183,15 @@ void Album::draw() const
 		auto num = i - MusicListFirstIndex;
 		auto music = getData().MusicList[albumDir][i];
 		RoundRect tmpRRect(albumList_FlagRRect.x, albumList_FlagRRect.y + num * 39, albumList_FlagRRect.w, albumList_FlagRRect.h, albumList_FlagRRect.r);
-		if (music.music.isPlaying()) pauseImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		else playImage.drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		albumListFont(music.compressedName).draw(70, 304 + barHeight + num * 39);
-		auto str = Format(Pad(music.totalTime / 60, { 2, U'0' }), U":", Pad(music.totalTime % 60, { 2, U'0' }));
-		albumListFont(str).draw(610, 304 + barHeight + num * 39);
+		if (i == getData().selectedMusicIndex)
+		{
+			if (AudioAsset(U"album-" + albumDir + U".music-" + music.dir).isPlaying()) TextureAsset(U"Album.pause").drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
+			else TextureAsset(U"Album.play").drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
+		}
+		else TextureAsset(U"Album.play").drawAt(43, 318 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
+		FontAsset(U"Album.albumList")(music.compressedName).draw(70, 304 + barHeight + num * 39);
 		tmpRRect = RoundRect(albumList_FavRRect.x, albumList_FavRRect.y + num * 39, albumList_FavRRect.w, albumList_FavRRect.h, albumList_FavRRect.r);
-		((getData().isFav(albumName, music.name) || tmpRRect.mouseOver()) ? favImage : notFavImage).drawAt(725, 318 + barHeight + num * 39);
+		TextureAsset(U"Album.fav").drawAt(725, 318 + barHeight + num * 39, (getData().isFav(albumName, music.name) || tmpRRect.mouseOver()) ? Palette::Gold : Palette::White);
 	}
 }
 
@@ -200,7 +199,7 @@ void Album::draw() const
 void Album::draw_albumDetails_update()
 {
 	auto rect = albumNameRRect;
-	auto width = albumNameFont(albumName).region().w + rect.r;
+	auto width = FontAsset(U"Album.albumName")(albumName).region().w + rect.r;
 	if (width > albumNameRRect.w)
 	{
 		if (!draw_albumNameStayFlag)
@@ -223,7 +222,7 @@ void Album::draw_albumDetails_update()
 		}
 	}
 	rect = albumCreatorRRect;
-	width = albumCreatorFont(albumCreator).region().w + rect.r;
+	width = FontAsset(U"Album.albumCreator")(albumCreator).region().w + rect.r;
 	if (width > albumCreatorRRect.w)
 	{
 		if (!draw_albumCreatorStayFlag)
@@ -245,7 +244,7 @@ void Album::draw_albumDetails_update()
 			}
 		}
 	}
-	auto height = albumExplFont.height() * albumComment_Separeted.size();
+	auto height = FontAsset(U"Album.albumExpl").height() * albumComment_Separeted.size();
 	if (albumExplRRect.h < height)
 	{
 		if (!draw_albumExplStayFlag)
@@ -278,8 +277,8 @@ void Album::albumExpl_draw() const
 	Graphics2D::SetScissorRect(Rect((int)albumExplRRect.x, (int)albumExplRRect.y, (int)albumExplRRect.w, (int)albumExplRRect.h));
 	for (size_t i = 0; i < albumComment_Separeted.size(); ++i)
 	{
-		const int32 y = static_cast<int32>(draw_albumExpl_y + i * albumExplFont.height());
-		albumExplFont(albumComment_Separeted[i]).draw(albumExplRRect.x + 10, y);
+		const int32 y = static_cast<int32>(draw_albumExpl_y + i * FontAsset(U"Album.albumExpl").height());
+		FontAsset(U"Album.albumExpl")(albumComment_Separeted[i]).draw(albumExplRRect.x + 10, y);
 	}
 	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
 }
@@ -289,7 +288,7 @@ String Album::compressMusicName(String text) const
 {
 	const String dots(U"...");
 	size_t fixedLength = 0;
-	while (albumListFont(text.substr(0, fixedLength) + dots).region().w < albumList_NameRRect.w && fixedLength <= text.length()) ++fixedLength;
+	while (FontAsset(U"Album.albumList")(text.substr(0, fixedLength) + dots).region().w < albumList_NameRRect.w && fixedLength <= text.length()) ++fixedLength;
 	--fixedLength;
 	return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 }
