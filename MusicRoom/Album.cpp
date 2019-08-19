@@ -36,6 +36,7 @@ Album::Album(const InitData& init) : IScene(init)
 	albumList_NameRect = Rect(albumList_FlagRect.x + albumList_FlagRect.w + 5, albumList_FlagRect.y, Scene::Width() / 2 - (36 * 2 + 5 * 2 + 25), 36);
 	albumList_FavRect = Rect(albumList_NameRect.x + albumList_NameRect.w + 5, albumList_FlagRect.y, 36, 36);
 	albumListAllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() / 2 - 25, 36 * albumListRows + 5 * (albumListRows - 1));
+	audioWaveRect = Rect(25, 35 + barHeight, albumNameRect.w, albumImageRect.h);
 	rectHeader = Quad(Vec2(0, 0), Vec2(160, 0), Vec2(160 + FontAsset(U"Album.header").height(), FontAsset(U"Album.header").height()), Vec2(0, FontAsset(U"Album.header").height()));
 	goUpPos = Vec2(albumListAllRect.center().x, barHeight + 5 + TextureAsset(U"Album.goUp").height() / 2);
 	goDownPos = Vec2(albumListAllRect.center().x, Scene::Height() - 5 - TextureAsset(U"Album.goDown").height() / 2);
@@ -137,12 +138,14 @@ void Album::update()
 			changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 	}
+	if (getData().selectedMusicIndex != -1 && AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir).isPlaying()) FFT::Analyze(musicFFT, AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir));
 }
 
 // 描画
 void Album::draw() const
 {
 	// アルバム情報 描画
+	if (!musicFFT.buffer.empty()) audioWaveRect.drawFrame(3, getData().schemeColor2);
 	drawStrBackground(albumImageRect, U"アルバム画像", U"Album.image");
 	drawStrBackground(albumNameRect, U"アルバム名", U"Album.name");
 	drawStrBackground(albumCreatorRect, U"クレジット", U"Album.credit");
@@ -150,6 +153,7 @@ void Album::draw() const
 	albumImageRect
 		.stretched(-5)
 		(TextureAsset(U"album-" + albumDir + U".image")).draw();
+	if (!musicFFT.buffer.empty()) for (auto i : step(118)) RectF(audioWaveRect.x + audioWaveRect.w / 118 * i, audioWaveRect.y + audioWaveRect.h, audioWaveRect.w / 118, -Pow(musicFFT.buffer[i], 0.3) * audioWaveRect.h).draw(ColorF(getData().schemeColor3, 0.5));
 	RasterizerState rasterizer = RasterizerState::Default2D;
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
@@ -174,11 +178,7 @@ void Album::draw() const
 		auto num = i - MusicListFirstIndex;
 		auto music = getData().MusicList[albumDir][i];
 		auto rect = albumList_FlagRect.movedBy(0, num * 41);
-		if (i == getData().selectedMusicIndex)
-		{
-			if (AudioAsset(U"album-" + albumDir + U".music-" + music.dir).isPlaying()) TextureAsset(U"Album.pause").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
-			else TextureAsset(U"Album.play").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
-		}
+		if (i == getData().selectedMusicIndex && AudioAsset(U"album-" + albumDir + U".music-" + music.dir).isPlaying()) TextureAsset(U"Album.pause").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
 		else TextureAsset(U"Album.play").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
 		FontAsset(U"Album.albumList")(music.name).draw(albumList_NameRect.movedBy(0, num * 41).stretched(-5, -1), getData().stringColor);
 		rect = albumList_FavRect.movedBy(0, num * 41);

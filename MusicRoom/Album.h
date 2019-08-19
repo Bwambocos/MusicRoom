@@ -15,12 +15,13 @@ private:
 	const int draw_moveYPerSec = 12;
 
 	// ÉOÉçÅ[ÉoÉãïœêî
-	Rect albumImageRect, albumNameRect, albumCreatorRect, albumExplRect, albumList_FlagRect, albumList_NameRect, albumList_FavRect, albumListAllRect;
+	Rect albumImageRect, albumNameRect, albumCreatorRect, albumExplRect, albumList_FlagRect, albumList_NameRect, albumList_FavRect, albumListAllRect, audioWaveRect;
 	Quad rectHeader;
 	Stopwatch draw_albumNameTime, draw_albumCreatorTime, draw_albumExplTime;
 	String albumName, albumDir, albumCreator, albumComment;
 	Array<String> albumComment_Separeted;
 	Vec2 goUpPos, goDownPos;
+	FFTResult musicFFT;
 	int MusicListFirstIndex;
 	double draw_albumNameX, draw_albumCreatorX, draw_albumExpl_y;
 	bool draw_albumNameStayFlag, draw_albumCreatorStayFlag, draw_albumExplStayFlag;
