@@ -10,11 +10,11 @@
 void Main()
 {
 	Window::Resize(GameInfo::Width, GameInfo::Height + barHeight);
-	Scene::SetBackground(ColorF(0.7, 0.8, 0.7));
 	Window::SetTitle(GameInfo::Title);
 
 	MyApp manager;
-	manager.setFadeColor(GameInfo::FadeInColor);
+	Scene::SetBackground((*(manager.get())).schemeColor1);
+	manager.setFadeColor((*(manager.get())).schemeColor1);
 	manager.add<Select>(U"Select");
 	manager.add<Album>(U"Album");
 	manager.add<Music>(U"Music");
