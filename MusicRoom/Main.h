@@ -9,7 +9,6 @@ namespace GameInfo
 	const int32 Width = 1280;
 	const int32 Height = 720;
 	const String Title = U"MusicRoom v4.5";
-	const ColorF FadeInColor = ColorF(0.0, 0.0, 0.0);
 	const int32 FadeInTime = 500;
 	const bool FadeCrossFlag = true;
 }
@@ -88,6 +87,14 @@ struct GameData
 		--fixedLength;
 		return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 	}
+
+	int drawMode = 0;
+	Color schemeColor1 = Color(22, 22, 22);
+	Color schemeColor2 = Color(66, 66, 66);
+	Color schemeColor3 = Color(110, 110, 110);
+	Color schemeColor4 = Color(154, 154, 154);
+	Color schemeColor5 = Color(198, 198, 198);
+	Color stringColor = Color(Palette::White);
 };
 
 using MyApp = SceneManager<String, GameData>;

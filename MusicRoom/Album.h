@@ -9,21 +9,19 @@ class Album : public MyApp::Scene
 private:
 
 	// const
-	const int draw_albumNameDefaultX = 333;
-	const int draw_albumCreatorDefaultX = 333;
-	const int draw_albumExplDefaultY = 143 + barHeight;
+	const size_t albumListRows = 16;
 	const int drawStayMillisec = 3500;
 	const int draw_moveXPerSec = 48;
 	const int draw_moveYPerSec = 12;
 
 	// ÉOÉçÅ[ÉoÉãïœêî
-	Texture backgroundImage, playImage, pauseImage, notFavImage, favImage, albumImage;
-	Font albumNameFont, albumCreatorFont, albumExplFont, albumListFont;
-	RoundRect albumImageRRect, albumNameRRect, albumCreatorRRect, albumExplRRect, albumList_FlagRRect, albumList_NameRRect, albumList_TimeRRect, albumList_FavRRect, albumListAllRRect, albumListCellRRect;
-	Triangle goUpButton, goDownButton;
+	Rect albumImageRect, albumNameRect, albumCreatorRect, albumExplRect, albumList_FlagRect, albumList_NameRect, albumList_FavRect, albumListAllRect, audioWaveRect;
+	Quad rectHeader;
 	Stopwatch draw_albumNameTime, draw_albumCreatorTime, draw_albumExplTime;
 	String albumName, albumDir, albumCreator, albumComment;
 	Array<String> albumComment_Separeted;
+	Vec2 goUpPos, goDownPos;
+	FFTResult musicFFT;
 	int MusicListFirstIndex;
 	double draw_albumNameX, draw_albumCreatorX, draw_albumExpl_y;
 	bool draw_albumNameStayFlag, draw_albumCreatorStayFlag, draw_albumExplStayFlag;
@@ -45,6 +43,9 @@ public:
 	// ÉAÉãÉoÉÄê‡ñæ ï`âÊ
 	void albumExpl_draw() const;
 
-	// ã»ñºíZèk
-	String compressMusicName(String text) const;
+	// É{É^Éìï`âÊ
+	void drawButton(Rect rect, bool highlight) const;
+
+	// ï∂éöîwåiï`âÊ
+	void drawStrBackground(Rect rect, String header, String icon) const;
 };
