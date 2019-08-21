@@ -126,7 +126,7 @@ void Album::update()
 		rect = albumList_FavRect.movedBy(0, num * 41);
 		if (rect.leftClicked())
 		{
-			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, music.name, music.dir, music.comment, music.music));
+			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, albumCreator, albumComment, music.name, music.dir, music.comment, music.music));
 		}
 		rect = albumList_NameRect.movedBy(0, num * 41);
 		if (rect.leftClicked())

@@ -40,14 +40,16 @@ void loadFavList(GameData& getData)
 	{
 		auto albumDir = csv.get<String>(i, 0);
 		auto musicDir = csv.get<String>(i, 1);
-		String albumName, musicName, musicComment;
+		String albumName, albumCreator, albumComment, musicName, musicComment;
 		TextReader albumTextReader(U"music\\" + albumDir + U"\\" + albumDir + U".txt");
 		TextReader musicTextReader(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 		albumTextReader.readLine(albumName);
+		albumTextReader.readLine(albumCreator);
+		String temp; while (albumTextReader.readLine(temp)) albumComment += temp + U"\n";
 		musicTextReader.readLine(musicName);
-		String temp; while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
+		while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
 		Audio music(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
-		getData.addFav(albumName, albumDir, musicName, musicDir, musicComment, music);
+		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment, music);
 	}
 }
 

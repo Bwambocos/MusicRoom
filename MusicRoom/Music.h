@@ -8,14 +8,14 @@ class Music : public MyApp::Scene
 private:
 
 	// const
-	const int draw_musicNameDefaultX = 33;
 	const int draw_stayMillisec = 3500;
 	const int draw_moveXPerSec = 48;
 
 	// グローバル変数
-	String albumName, albumDir, musicName, musicDir, musicComment, musicTotalTime;
-	RoundRect musicNameRect, musicTimeRect, musicFavRect, musicSeekRect;
-	Rect musicExplRect;
+	String albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment;
+	Rect albumImageRect, albumNameRect, albumCreatorRect, albumExplRect, musicNameRect, musicExplRect;
+	RoundRect musicSeekRect;
+	Quad rectHeader;
 	FFTResult musicFFT;
 	Stopwatch draw_musicNameTime;
 	Vec2 playPos, stopPos, seekPos, repPos, favPos;
@@ -35,4 +35,7 @@ public:
 
 	// 曲名描画位置 更新
 	void draw_musicName_update();
+
+	// 文字背景描画
+	void drawStrBackground(Rect rect, String header, String icon) const;
 };

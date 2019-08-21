@@ -32,7 +32,7 @@ struct MusicData
 struct FavMusicData
 {
 	Audio music;
-	String album_name, album_dir, music_name, music_dir, comment, music_compressedName;
+	String album_name, album_dir, album_creator, album_comment, music_name, music_dir, comment, music_compressedName;
 	int totalTime;
 };
 
@@ -59,9 +59,9 @@ struct GameData
 	}
 
 	// Ç®ãCÇ…ì¸ÇËÇ…í«â¡Ç∑ÇÈ
-	void addFav(String albumName, String albumDir, String musicName, String musicDir, String musicComment, Audio music)
+	void addFav(String albumName, String albumDir, String albumCreator, String albumComment, String musicName, String musicDir, String musicComment, Audio music)
 	{
-		FavMusicList.push_back({ music, albumName, albumDir, musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
+		FavMusicList.push_back({ music, albumName, albumDir,albumCreator, albumComment,musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
 	}
 
 	// Ç®ãCÇ…ì¸ÇËÇ©ÇÁçÌèúÇ∑ÇÈ

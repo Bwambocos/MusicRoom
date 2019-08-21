@@ -52,7 +52,7 @@ void Fav::update()
 			else getData().FavMusicList[getData().selectedFavMusicIndex].music.play();
 		}
 		rect = RoundRect(albumList_FavRect.x, albumList_FavRect.y + num * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r);
-		if (rect.leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.music_name, music.music_dir, music.comment, music.music));
+		if (rect.leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
 		rect = RoundRect(albumList_CellRect.x, albumList_CellRect.y + num * 39, albumList_CellRect.w, albumList_CellRect.h, albumList_CellRect.r);
 		if (rect.leftClicked())
 		{
