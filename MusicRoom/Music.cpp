@@ -8,6 +8,16 @@
 // 初期化
 Music::Music(const InitData& init) : IScene(init)
 {
+	// アセット管理登録
+	TextureAsset::Register(U"Music.play", Icon(0xf144, 36));
+	TextureAsset::Register(U"Music.pause", Icon(0xf28b, 36));
+	TextureAsset::Register(U"Music.stop", Icon(0xf28d, 36));
+	TextureAsset::Register(U"Music.seek", Icon(0xf192, 36));
+	TextureAsset::Register(U"Music.rep", Icon(0xf2f1, 36));
+	TextureAsset::Register(U"Music.fav", Icon(0xf005, 36));
+	FontAsset::Register(U"Music.musicNameAndTime", 28, U"data\\fontR.ttc");
+	FontAsset::Register(U"Music.musicExpl", 20, U"data\\fontR.ttc");
+
 	// シーン状況 更新
 	if (getData().nowScene != U"Music")
 	{
@@ -15,78 +25,28 @@ Music::Music(const InitData& init) : IScene(init)
 		getData().nowScene = U"Music";
 	}
 
-	backgroundImage = Texture(U"data\\backgroundImage.png");
-	playImage_all[0] = Texture(U"data\\Music\\playNormal.png");
-	playImage_all[1] = Texture(U"data\\Music\\playActive.png");
-	pauseImage_all[0] = Texture(U"data\\Music\\pauseNormal.png");
-	pauseImage_all[1] = Texture(U"data\\Music\\pauseActive.png");
-	stopImage_all[0] = Texture(U"data\\Music\\stopNormal.png");
-	stopImage_all[1] = Texture(U"data\\Music\\stopActive.png");
-	seekImage_all[0] = Texture(U"data\\Music\\seekNormal.png");
-	seekImage_all[1] = Texture(U"data\\Music\\seekActive.png");
-	repImage_all[0] = Texture(U"data\\Music\\repNormal.png");
-	repImage_all[1] = Texture(U"data\\Music\\repActive.png");
-	favedImage = Texture(U"data\\Music\\favedImage.png");
-	notFavedImage = Texture(U"data\\Music\\notFavedImage.png");
-	musicNameAndTimeFont = Font(28, U"data\\fontR.ttc");
-	musicExplFont = Font(20, U"data\\fontR.ttc");
 	musicNameRect = RoundRect(25, 25 + barHeight, 468, 48, 5);
 	musicTimeRect = RoundRect(496, 25 + barHeight, 199, 48, 5);
 	musicFavRect = RoundRect(698, 25 + barHeight, 48, 48, 5);
 	musicSeekRect = RoundRect(127, 91 + barHeight, 565, 21, 15);
-	musicExplRect = RoundRect(25, 130 + barHeight, 718, 357, 5);
-	playImage_display = playImage_all[0];
-	pauseImage_display = pauseImage_all[0];
-	stopImage_display = stopImage_all[0];
-	seekImage_display = seekImage_all[0];
-	repImage_display = repImage_all[0];
+	musicExplRect = Rect(25, 130 + barHeight, 718, 357);
+	playPos = Vec2(45, musicSeekRect.y + musicSeekRect.h / 2);
+	stopPos = Vec2(723, musicSeekRect.y + musicSeekRect.h / 2);
+	repPos = Vec2(90, musicSeekRect.y + musicSeekRect.h / 2);
+	favPos = Vec2(722, 49 + barHeight);
 
 	// 描画位置 初期化
 	draw_musicNameTime.restart();
 	draw_musicNameStayFlag = true;
 	draw_musicNameX = draw_musicNameDefaultX;
-
-	const int32 w = (int32)musicExplRect.w - 10;
-	const int32 h = (int32)musicExplRect.h;
-	size_t pos = 0;
 	if (getData().prevScene == U"Fav") musicComment = getData().FavMusicList[getData().selectedFavMusicIndex].comment;
 	else musicComment = getData().MusicList[getData().AlbumList[getData().selectedAlbumIndex].dir][getData().selectedMusicIndex].comment;
-	musicComment_separeted.clear();
-	while (pos < (int)musicComment.length())
-	{
-		for (int i = 0; i + pos < (int)musicComment.length(); ++i)
-		{
-			if (musicExplFont(musicComment.substr(pos, i)).region().w >= w)
-			{
-				musicComment_separeted.push_back(musicComment.substr(pos, i - 1));
-				pos += (i - 1);
-				break;
-			}
-			if (musicComment[pos + i] == U'\n')
-			{
-				musicComment_separeted.push_back(musicComment.substr(pos, i + 1));
-				pos += (i + 1);
-				break;
-			}
-		}
-	}
-	for (size_t i = 0; i < musicComment_separeted.size(); ++i)
-	{
-		const int32 y = static_cast<int32>(musicExplRect.y + 10 + i * musicExplFont.height());
-		const bool overflow = (i + 1 < musicComment_separeted.size()) && (y + musicExplFont.height() * 2 + 10 > musicExplRect.y + musicExplRect.h);
-		if (overflow)
-		{
-			if (musicComment_separeted[i].length() > 2) musicComment_separeted[i].resize(musicComment_separeted[i].length() - (musicComment_separeted[i].length() > 2 ? 2 : 1));
-			if (musicComment_separeted[i][musicComment_separeted[i].length() - 1] == U'\n') musicComment_separeted[i][musicComment_separeted[i].length() - 1] = U'\0';
-			musicComment_separeted[i].append(U"...");
-		}
-		if (overflow) break;
-	}
 }
 
 // 更新
 void Music::update()
 {
+	// 現在再生中の曲を更新
 	if (getData().prevScene == U"Fav")
 	{
 		if (getData().selectedFavMusicIndex == -1)
@@ -121,11 +81,9 @@ void Music::update()
 		}
 		musicDir = selectedMusicData.dir;
 		musicComment = selectedMusicData.comment;
-		musicTotalTime = Format(Pad(selectedMusicData.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(selectedMusicData.totalTime % 60, std::make_pair(2, U'0')));
+		musicTotalTime = Format(Pad(AudioAsset(U"album-" + albumDir + U".music-" + musicDir).lengthSec() / 60, std::make_pair(2, U'0')), U":", Pad((int)AudioAsset(U"album-" + albumDir + U".music-" + musicDir).lengthSec() % 60, std::make_pair(2, U'0')));
 	}
-	Audio& nowMusic = (getData().prevScene == U"Fav"
-		? (getData().selectedFavMusicIndex == -1 ? tempAudio1 : getData().FavMusicList[getData().selectedFavMusicIndex].music)
-		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? tempAudio1 : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
+	auto nowMusic = AudioAsset(U"album-" + albumDir + U".music-" + musicDir);
 
 	// 再生バー 更新
 	// バー
@@ -140,19 +98,15 @@ void Music::update()
 		nowMusic.play();
 		seekButtonFlag = false;
 	}
+	seekPos = Vec2(musicSeekRect.x + musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.y + musicSeekRect.h / 2);
 
 	// ボタン
-	Circle tmpCircle(45, musicSeekRect.y + musicSeekRect.h / 2, 15);
-	playImage_display = playImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
-	pauseImage_display = pauseImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
-	if (tmpCircle.leftClicked() || KeyEnter.pressed())
+	if (TextureAsset(nowMusic.isPlaying() ? U"Music.pause" : U"Music.play").regionAt(playPos).leftClicked() || KeyEnter.pressed())
 	{
 		if (nowMusic.isPlaying()) nowMusic.pause();
 		else nowMusic.play();
 	}
-	tmpCircle = Circle(90, musicSeekRect.y + musicSeekRect.h / 2, 15);
-	repImage_display = repImage_all[((tmpCircle.mouseOver() || getData().selectedMusicLoopFlag) ? 1 : 0)];
-	if (tmpCircle.leftClicked() || KeyShift.pressed())
+	if (TextureAsset(U"Music.rep").regionAt(repPos).leftClicked() || KeyShift.pressed())
 	{
 		const int tmpTime = (int)nowMusic.streamPosSample();
 		nowMusic.pause();
@@ -161,9 +115,7 @@ void Music::update()
 		nowMusic.play();
 		nowMusic.setPosSample(tmpTime);
 	}
-	tmpCircle = Circle(723, musicSeekRect.y + musicSeekRect.h / 2, 15);
-	stopImage_display = stopImage_all[(tmpCircle.mouseOver() ? 1 : 0)];
-	if (tmpCircle.leftClicked() || KeySpace.pressed())
+	if (TextureAsset(U"Music.stop").regionAt(stopPos).leftClicked() || KeySpace.pressed())
 	{
 		nowMusic.stop();
 		if (getData().nowScene == U"Fav" || getData().prevScene == U"Fav") getData().selectedFavMusicIndex = -1;
@@ -178,7 +130,7 @@ void Music::update()
 
 	// 曲情報 更新
 	draw_musicName_update();
-	if (musicFavRect.leftClicked())
+	if (TextureAsset(U"Music.fav").regionAt(favPos).leftClicked())
 	{
 		if (getData().prevScene == U"Album")
 		{
@@ -194,12 +146,9 @@ void Music::update()
 // 描画
 void Music::draw() const
 {
-	const Audio& nowMusic = (getData().prevScene == U"Fav"
-		? (getData().selectedFavMusicIndex == -1 ? tempAudio2 : getData().FavMusicList[getData().selectedFavMusicIndex].music)
-		: (getData().selectedMusicIndex == -1 || getData().MusicList[albumDir].empty() ? tempAudio2 : getData().MusicList[albumDir][getData().selectedMusicIndex].music));
+	const auto nowMusic = AudioAsset(U"album-" + albumDir + U".music-" + musicDir);
 
 	// 背景 描画
-	backgroundImage.draw();
 	if (!musicFFT.buffer.empty()) for (auto i : step(51)) { RectF(1 + i * 15, Scene::Height(), 15, -Pow(musicFFT.buffer[i], 0.8) * 750).draw(Color(200, 200, 200, 200)); }
 	musicNameRect.draw(Color(64, 64, 64, 200));
 	musicNameRect.drawFrame(1, Palette::Black);
@@ -211,18 +160,16 @@ void Music::draw() const
 	// 再生バー
 	// バー
 	musicSeekRect.draw(Color(64, 64, 64, 200));
-	const RoundRect tmpRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.h, musicSeekRect.r);
-	tmpRect.draw(Color(0, 200, 0, 200));
+	RoundRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.h, musicSeekRect.r).draw(Color(0, 200, 0, 200));
 	musicSeekRect.drawFrame(1, Palette::Black);
 
 	// Seek
-	auto x = musicSeekRect.x + musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples();
-	(nowMusic.isPlaying() ? seekImage_all[1] : seekImage_all[0]).drawAt(x, musicSeekRect.y + musicSeekRect.h / 2);
+	TextureAsset(U"Music.seek").drawAt(seekPos, nowMusic.isPlaying() ? Palette::Orange : Palette::White);
 
 	// ボタン
-	(nowMusic.isPlaying() ? pauseImage_display : playImage_display).drawAt(45, musicSeekRect.y + musicSeekRect.h / 2);
-	repImage_display.drawAt(90, musicSeekRect.y + musicSeekRect.h / 2);
-	stopImage_display.drawAt(723, musicSeekRect.y + musicSeekRect.h / 2);
+	TextureAsset(nowMusic.isPlaying() ? U"Music.pause" : U"Music.play").drawAt(playPos, TextureAsset(nowMusic.isPlaying() ? U"Music.play" : U"Music.pause").regionAt(playPos).mouseOver() ? Palette::Orange : Palette::White);
+	TextureAsset(U"Music.rep").drawAt(repPos, (TextureAsset(U"Music.rep").regionAt(repPos).mouseOver() || getData().selectedMusicLoopFlag) ? Palette::Orange : Palette::White);
+	TextureAsset(U"Music.stop").drawAt(stopPos, TextureAsset(U"Music.stop").regionAt(stopPos).mouseOver() ? Palette::Orange : Palette::White);
 	musicExplRect.draw(Color(64, 64, 64, 200));
 	musicExplRect.drawFrame(1, Palette::Black);
 
@@ -231,30 +178,18 @@ void Music::draw() const
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(Rect((int)musicNameRect.x, (int)musicNameRect.y, (int)musicNameRect.w, (int)musicNameRect.h));
-	musicNameAndTimeFont(musicName).draw(draw_musicNameX, 28 + barHeight);
+	FontAsset(U"Music.musicNameAndTime")(musicName).draw(draw_musicNameX, 28 + barHeight);
 	Graphics2D::SetScissorRect(Rect(0, 0, Scene::Width(), Scene::Height()));
-	musicNameAndTimeFont(musicTotalTime).draw(504, 28 + barHeight);
-	((getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? favedImage : notFavedImage).drawAt(722, 49 + barHeight);
-	musicExpl_draw();
-}
-
-// 曲説明 描画
-void Music::musicExpl_draw() const
-{
-	for (size_t i = 0; i < musicComment_separeted.size(); ++i)
-	{
-		const int32 y = static_cast<int32>(musicExplRect.y + 10 + i * musicExplFont.height());
-		const bool overflow = (i + 1 < musicComment_separeted.size()) && (y + musicExplFont.height() * 2 + 10 > musicExplRect.y + musicExplRect.h);
-		musicExplFont(musicComment_separeted[i]).draw(musicExplRect.x + 10, y);
-		if (overflow) break;
-	}
+	FontAsset(U"Music.musicNameAndTime")(musicTotalTime).draw(504, 28 + barHeight);
+	TextureAsset(U"Music.fav").drawAt(favPos, (getData().isFav(albumName, musicName) || musicFavRect.mouseOver()) ? Palette::Orange : Palette::White);
+	FontAsset(U"Music.musicExpl")(musicComment).draw(musicExplRect.stretched(-5, -5), Palette::White);
 }
 
 // 曲名描画位置 更新
 void Music::draw_musicName_update()
 {
 	auto rect = musicNameRect;
-	auto width = musicNameAndTimeFont(getData().prevScene == U"Fav" ? getData().FavMusicList[getData().selectedFavMusicIndex].music_name : getData().MusicList[albumDir][getData().selectedMusicIndex].name).region().w + rect.r;
+	auto width = FontAsset(U"Music.musicNameAndTime")(getData().prevScene == U"Fav" ? getData().FavMusicList[getData().selectedFavMusicIndex].music_name : getData().MusicList[albumDir][getData().selectedMusicIndex].name).region().w + rect.r;
 	if (width > musicNameRect.w)
 	{
 		if (!draw_musicNameStayFlag)
