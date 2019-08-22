@@ -8,25 +8,24 @@
 // 初期化
 Fav::Fav(const InitData& init) : IScene(init)
 {
+	// アセット管理登録
+	FontAsset::Register(U"Fav.albumList", 20, U"data\\fontR.ttc");
+	TextureAsset::Register(U"Fav.play", Icon(0xf144, 36));
+	TextureAsset::Register(U"Fav.pause", Icon(0xf28b, 36));
+	TextureAsset::Register(U"Fav.fav", Icon(0xf005, 36));
+	TextureAsset::Register(U"Fav.goUp", Icon(0xf139, 42));
+	TextureAsset::Register(U"Fav.goDown", Icon(0xf13a, 42));
+
 	// シーン状況 更新
 	getData().prevScene = getData().nowScene;
 	getData().nowScene = U"Fav";
 
-	backgroundImage = Texture(U"data\\backgroundImage.png");
-	playImage = Texture(U"data\\Album\\playImage.png");
-	pauseImage = Texture(U"data\\Album\\pauseImage.png");
-	notFavImage = Texture(U"data\\Album\\notFavImage.png");
-	favImage = Texture(U"data\\Album\\favImage.png");
-	albumListFont = Font(20, U"data\\fontR.ttc");
-	albumList_FlagRect = RoundRect(25, 25 + barHeight, 36, 36, 5);
-	albumList_NameRect = RoundRect(64, 25 + barHeight, 537, 36, 5);
-	albumList_TimeRect = RoundRect(604, 25 + barHeight, 100, 36, 5);
-	albumList_FavRect = RoundRect(707, 25 + barHeight, 36, 36, 5);
-	albumList_AllRect = RoundRect(25, 25 + barHeight, 718, 456, 5);
-	albumList_CellRect = RoundRect(64, 25 + barHeight, 582, 36, 5);
-	goUpButton = Triangle({ 384,75 }, { 414,85 }, { 354,85 });
-	goDownButton = Triangle({ 354,560 }, { 414,560 }, { 384,570 });
-
+	albumList_FlagRect = Rect(25, 35 + barHeight, 36, 36);
+	albumList_NameRect = Rect(albumList_FlagRect.x + albumList_FlagRect.w + 5, albumList_FlagRect.y, Scene::Width() - (36 * 2 + 5 * 2 + 25 * 2), 36);
+	albumList_FavRect = Rect(albumList_NameRect.x + albumList_NameRect.w + 5, albumList_FlagRect.y, 36, 36);
+	albumList_AllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() - 50, 36 * albumListRows + 5 * (albumListRows - 1));
+	goUpPos = Vec2(albumList_AllRect.center().x, barHeight + 5 + TextureAsset(U"Fav.goUp").height() / 2);
+	goDownPos = Vec2(albumList_AllRect.center().x, Scene::Height() - 5 - TextureAsset(U"Fav.goDown").height() / 2);
 	FavMusicListFirstIndex = 0;
 }
 
@@ -34,30 +33,30 @@ Fav::Fav(const InitData& init) : IScene(init)
 void Fav::update()
 {
 	// 曲リスト 更新
-	if (goUpButton.leftClicked()) --FavMusicListFirstIndex;
-	if (goDownButton.leftClicked()) ++FavMusicListFirstIndex;
+	if (TextureAsset(U"Fav.goUp").regionAt(goUpPos).leftClicked()) --FavMusicListFirstIndex;
+	if (TextureAsset(U"Fav.goDown").regionAt(goDownPos).leftClicked()) ++FavMusicListFirstIndex;
 	if (albumList_AllRect.mouseOver()) FavMusicListFirstIndex += (int)Mouse::Wheel();
 	FavMusicListFirstIndex = Max(FavMusicListFirstIndex, 0);
-	FavMusicListFirstIndex = Min<int>(FavMusicListFirstIndex, Max<int>((int)getData().FavMusicList.size() - maxCellNum, 0));
+	FavMusicListFirstIndex = Min<int>(FavMusicListFirstIndex, Max<int>((int)getData().FavMusicList.size() - albumListRows, 0));
 
-	for (int i = FavMusicListFirstIndex; ((i - FavMusicListFirstIndex) < Min<int>(maxCellNum, (signed)getData().FavMusicList.size())) && (i < (signed)getData().FavMusicList.size()); ++i)
+	for (int i = FavMusicListFirstIndex; i - FavMusicListFirstIndex < Min<int>(albumListRows, (signed)getData().FavMusicList.size()) && i < (signed)getData().FavMusicList.size(); ++i)
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];
-		RoundRect rect(albumList_FlagRect.x, albumList_FlagRect.y + num * 39, albumList_FlagRect.w, albumList_FlagRect.h, albumList_FlagRect.r);
-		if (rect.leftClicked())
+		if (albumList_FlagRect.movedBy(0, num * 39).leftClicked())
 		{
-			if (getData().selectedFavMusicIndex != i) getData().selectedFavMusicIndex = i;
-			if (getData().FavMusicList[getData().selectedFavMusicIndex].music.isPlaying()) getData().FavMusicList[getData().selectedFavMusicIndex].music.pause();
-			else getData().FavMusicList[getData().selectedFavMusicIndex].music.play();
+			if (getData().selectedFavMusicIndex != i && getData().selectedFavMusicIndex != -1) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).stop();
+			getData().selectedFavMusicIndex = i;
+			auto newMusic = AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir);
+			if (newMusic.isPlaying()) newMusic.pause();
+			else newMusic.play();
 		}
-		rect = RoundRect(albumList_FavRect.x, albumList_FavRect.y + num * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r);
-		if (rect.leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
-		rect = RoundRect(albumList_CellRect.x, albumList_CellRect.y + num * 39, albumList_CellRect.w, albumList_CellRect.h, albumList_CellRect.r);
-		if (rect.leftClicked())
+		if (albumList_FavRect.movedBy(0, num * 39).leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
+		if (albumList_NameRect.movedBy(0, num * 39).leftClicked())
 		{
+			if (getData().selectedFavMusicIndex != i && getData().selectedFavMusicIndex != -1) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).stop();
 			if (getData().selectedFavMusicIndex != i) getData().selectedFavMusicIndex = i;
-			if (!getData().FavMusicList[getData().selectedFavMusicIndex].music.isPlaying()) getData().FavMusicList[getData().selectedFavMusicIndex].music.play();
+			if (!AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).isPlaying()) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).play();
 			changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 	}
@@ -66,37 +65,34 @@ void Fav::update()
 // 描画
 void Fav::draw() const
 {
-	backgroundImage.draw(0, barHeight);
-
 	// 曲リスト 描画
-	if (FavMusicListFirstIndex > 0)
+	if (FavMusicListFirstIndex > 0) TextureAsset(U"Fav.goUp").drawAt(goUpPos, (TextureAsset(U"Fav.goUp").regionAt(goUpPos).mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
+	if (FavMusicListFirstIndex + albumListRows < (signed)getData().FavMusicList.size()) TextureAsset(U"Fav.goDown").drawAt(goDownPos, (TextureAsset(U"Fav.goDown").regionAt(goDownPos).mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
+	for (auto i : step(albumListRows))
 	{
-		goUpButton.draw((goUpButton.mouseOver() ? Palette::Orange : Palette::White));
-		goUpButton.drawFrame(2, Palette::Black);
+		drawButton(albumList_FlagRect.movedBy(0, i * 41), false);
+		drawButton(albumList_NameRect.movedBy(0, i * 41), false);
+		drawButton(albumList_FavRect.movedBy(0, i * 41), false);
 	}
-	if (FavMusicListFirstIndex + maxCellNum < (signed)getData().FavMusicList.size())
-	{
-		goDownButton.draw((goDownButton.mouseOver() ? Palette::Orange : Palette::White));
-		goDownButton.drawFrame(2, Palette::Black);
-	}
-	for (int i = 0; i < maxCellNum; ++i)
-	{
-		RoundRect(albumList_FlagRect.x, albumList_FlagRect.y + i * 39, albumList_FlagRect.w, albumList_FlagRect.h, albumList_FlagRect.r).draw(Color(32, 32, 32, 200));
-		RoundRect(albumList_NameRect.x, albumList_NameRect.y + i * 39, albumList_NameRect.w, albumList_NameRect.h, albumList_NameRect.r).draw(Color(32, 32, 32, 200));
-		RoundRect(albumList_TimeRect.x, albumList_TimeRect.y + i * 39, albumList_TimeRect.w, albumList_TimeRect.h, albumList_TimeRect.r).draw(Color(32, 32, 32, 200));
-		RoundRect(albumList_FavRect.x, albumList_FavRect.y + i * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r).draw(Color(32, 32, 32, 200));
-	}
-	for (int i = FavMusicListFirstIndex; (i - FavMusicListFirstIndex) < Min<int>(maxCellNum, (int)getData().FavMusicList.size() - FavMusicListFirstIndex); ++i)
+	for (int i = FavMusicListFirstIndex; (i - FavMusicListFirstIndex) < Min<int>(albumListRows, (int)getData().FavMusicList.size() - FavMusicListFirstIndex); ++i)
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];
-		RoundRect tmpRRect(albumList_FlagRect.x, albumList_FlagRect.y + num * 39, albumList_FlagRect.w, albumList_FlagRect.h, albumList_FlagRect.r);
-		if (music.music.isPlaying()) pauseImage.drawAt(43, 43 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		else playImage.drawAt(43, 43 + barHeight + num * 39, (tmpRRect.mouseOver() ? Palette::Orange : Palette::White));
-		albumListFont(music.music_compressedName).draw(70, 29 + barHeight + num * 39);
-		auto str = Format(Pad(music.totalTime / 60, std::make_pair(2, U'0')), U":", Pad(music.totalTime % 60, std::make_pair(2, U'0')));
-		albumListFont(str).draw(610, 29 + barHeight + num * 39);
-		tmpRRect = RoundRect(albumList_FavRect.x, albumList_FavRect.y + num * 39, albumList_FavRect.w, albumList_FavRect.h, albumList_FavRect.r);
-		((getData().isFav(music.album_name, music.music_name) || tmpRRect.mouseOver()) ? favImage : notFavImage).drawAt(725, 43 + barHeight + num * 39);
+		auto rect = albumList_FlagRect.movedBy(0, num * 41);
+		if (i == getData().selectedFavMusicIndex && AudioAsset(U"album-" + music.album_dir + U".music-" + music.music_dir).isPlaying()) TextureAsset(U"Fav.pause").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
+		else TextureAsset(U"Fav.play").drawAt(rect.center(), (rect.mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
+		FontAsset(U"Fav.albumList")(music.music_name).draw(albumList_NameRect.movedBy(0, num * 41).stretched(-5, -1), getData().stringColor);
+		rect = albumList_FavRect.movedBy(0, num * 41);
+		TextureAsset(U"Fav.fav").drawAt(rect.center(), (getData().isFav(music.album_name, music.music_name) || rect.mouseOver()) ? Palette::Gold : getData().schemeColor4);
 	}
+}
+
+// ボタン描画
+void Fav::drawButton(Rect rect, bool highlight) const
+{
+	rect
+		.drawShadow(Vec2(0, 3), 8, 0)
+		.draw(getData().schemeColor3)
+		.drawFrame(0, 1.5, ColorF((rect.mouseOver() || highlight ? getData().schemeColor5 : getData().schemeColor4), 0.6 + (rect.mouseOver() ? 1 : 0) * 0.4));
+	rect.draw(getData().schemeColor3);
 }

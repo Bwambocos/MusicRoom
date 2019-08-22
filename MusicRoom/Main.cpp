@@ -48,8 +48,8 @@ void loadFavList(GameData& getData)
 		String temp; while (albumTextReader.readLine(temp)) albumComment += temp + U"\n";
 		musicTextReader.readLine(musicName);
 		while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
-		Audio music(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
-		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment, music);
+		AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment, Audio());
 	}
 }
 

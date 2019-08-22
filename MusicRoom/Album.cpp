@@ -114,8 +114,7 @@ void Album::update()
 	{
 		auto num = i - MusicListFirstIndex;
 		auto music = getData().MusicList[albumDir][i];
-		auto rect = albumList_FlagRect.movedBy(0, num * 41);
-		if (rect.leftClicked())
+		if (albumList_FlagRect.movedBy(0, num * 41).leftClicked())
 		{
 			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir).stop();
 			getData().selectedMusicIndex = i;
@@ -123,13 +122,11 @@ void Album::update()
 			if (newMusic.isPlaying()) newMusic.pause();
 			else newMusic.play();
 		}
-		rect = albumList_FavRect.movedBy(0, num * 41);
-		if (rect.leftClicked())
+		if (albumList_FavRect.movedBy(0, num * 41).leftClicked())
 		{
 			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, albumCreator, albumComment, music.name, music.dir, music.comment, music.music));
 		}
-		rect = albumList_NameRect.movedBy(0, num * 41);
-		if (rect.leftClicked())
+		if (albumList_NameRect.movedBy(0, num * 41).leftClicked())
 		{
 			if (getData().selectedMusicIndex != i && getData().selectedMusicIndex != -1) AudioAsset(U"album-" + albumDir + U".music-" + getData().MusicList[albumDir][getData().selectedMusicIndex].dir).stop();
 			getData().selectedMusicIndex = i;

@@ -9,6 +9,9 @@
 Music::Music(const InitData& init) : IScene(init)
 {
 	// アセット管理登録
+	FontAsset::Register(U"Music.albumName", 28, U"data\\fontR.ttc");
+	FontAsset::Register(U"Music.albumCreator", 28, U"data\\fontR.ttc");
+	FontAsset::Register(U"Music.albumExpl", 18, U"data\\fontR.ttc");
 	FontAsset::Register(U"Music.musicName", 28, U"data\\fontR.ttc");
 	FontAsset::Register(U"Music.musicExpl", 20, U"data\\fontR.ttc");
 	FontAsset::Register(U"Music.header", 18, U"data\\fontR.ttc");
@@ -18,8 +21,10 @@ Music::Music(const InitData& init) : IScene(init)
 	TextureAsset::Register(U"Music.seek", Icon(0xf192, 42));
 	TextureAsset::Register(U"Music.stop", Icon(0xf28d, 42));
 	TextureAsset::Register(U"Music.fav", Icon(0xf005, 42));
+	TextureAsset::Register(U"Music.image", Icon(0xf03e, FontAsset(U"Music.header").height() - 8));
 	TextureAsset::Register(U"Music.name", Icon(0xf001, FontAsset(U"Music.header").height() - 8));
 	TextureAsset::Register(U"Music.expl", Icon(0xf075, FontAsset(U"Music.header").height() - 8));
+	TextureAsset::Register(U"Music.credit", Icon(0xf0c0, FontAsset(U"Music.header").height() - 8));
 
 	// シーン状況 更新
 	if (getData().nowScene != U"Music")
@@ -159,16 +164,16 @@ void Music::draw() const
 	if (!musicFFT.buffer.empty()) for (auto i : step(256)) RectF(Scene::Width() / 256 * i, Scene::Height(), Scene::Width() / 256, -Pow(musicFFT.buffer[i], 0.3) * Scene::Height()).draw(ColorF(getData().schemeColor3, 0.5));
 
 	// アルバム情報 描画
-	drawStrBackground(albumImageRect, U"アルバム画像", U"Album.image");
-	drawStrBackground(albumNameRect, U"アルバム名", U"Album.name");
-	drawStrBackground(albumCreatorRect, U"クレジット", U"Album.credit");
-	drawStrBackground(albumExplRect, U"アルバム説明", U"Album.expl");
+	drawStrBackground(albumImageRect, U"アルバム画像", U"Music.image");
+	drawStrBackground(albumNameRect, U"アルバム名", U"Music.name");
+	drawStrBackground(albumCreatorRect, U"クレジット", U"Music.credit");
+	drawStrBackground(albumExplRect, U"アルバム説明", U"Music.expl");
 	albumImageRect
 		.stretched(-5)
 		(TextureAsset(U"album-" + albumDir + U".image")).draw();
-	FontAsset(U"Album.albumName")(albumName).draw(albumNameRect.stretched(-5, -3), getData().stringColor);
-	FontAsset(U"Album.albumCreator")(albumCreator).draw(albumCreatorRect.stretched(-5, -3), getData().stringColor);
-	FontAsset(U"Album.albumExpl")(albumExpl).draw(albumExplRect.stretched(-5, -5), getData().stringColor);
+	FontAsset(U"Music.albumName")(albumName).draw(albumNameRect.stretched(-5, -3), getData().stringColor);
+	FontAsset(U"Music.albumCreator")(albumCreator).draw(albumCreatorRect.stretched(-5, -3), getData().stringColor);
+	FontAsset(U"Music.albumExpl")(albumExpl).draw(albumExplRect.stretched(-5, -5), getData().stringColor);
 
 	// 曲情報 描画
 	drawStrBackground(musicNameRect, U"曲名", U"Music.name");
