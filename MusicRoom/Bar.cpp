@@ -81,6 +81,8 @@ void Bar::update(GameData& getData, MyApp& manager)
 		if (backRect.leftClicked())
 		{
 			nowMusic.stop();
+			musicSamplesPlayed = 0;
+			getData.selectedMusicIndex = -1;
 			manager.changeScene(U"Select", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 		if (draw_go_flag && goRect.leftClicked()) manager.changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
@@ -92,6 +94,8 @@ void Bar::update(GameData& getData, MyApp& manager)
 		if (backRect.leftClicked())
 		{
 			nowMusic.stop();
+			musicSamplesPlayed = 0;
+			getData.selectedMusicIndex = -1;
 			manager.changeScene(U"Select", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
 		}
 		if (draw_go_flag && goRect.leftClicked()) manager.changeScene(U"Music", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
