@@ -67,16 +67,16 @@ void Select::update()
 	{
 		if (scrollTime.ms() >= scrollMillisec)
 		{
-			getData().AlbumListFirstIndex += (scrollFlag == 1 ? -(int)albumGridWidth : albumGridWidth);
+			getData().AlbumListFirstIndex += (scrollFlag == 1 ? -(int)albumGridWidth : (int)albumGridWidth);
 			scrollAddY = scrollFlag = 0;
 			getData().AlbumListFirstIndex = Max(getData().AlbumListFirstIndex, 0);
-			getData().AlbumListFirstIndex = Min<int>(getData().AlbumListFirstIndex, (int)getData().AlbumList.size() / albumGridWidth * albumGridWidth);
+			getData().AlbumListFirstIndex = Min(getData().AlbumListFirstIndex, (int)getData().AlbumList.size() / (int)albumGridWidth * (int)albumGridWidth);
 		}
 		else scrollAddY = (double)(scrollFlag == 1 ? (tileSize+25) : -(tileSize+25)) * scrollTime.ms() / scrollMillisec;
 	}
 
 	// album_list çXêV
-	int cnt = getData().AlbumListFirstIndex - albumGridWidth;
+	int cnt = getData().AlbumListFirstIndex - (int)albumGridWidth;
 	for (int y = -1; y <= (signed)albumGrid.height(); ++y)
 	{
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
@@ -117,7 +117,7 @@ void Select::update()
 void Select::draw() const
 {
 	// album_list ï`âÊ
-	int cnt = getData().AlbumListFirstIndex - albumGridWidth;
+	int cnt = getData().AlbumListFirstIndex - (int)albumGridWidth;
 	for (int y = -1; y <= (signed)albumGrid.height(); ++y)
 	{
 		for (int x = 0; x < (signed)albumGrid.width(); ++x)
@@ -128,7 +128,7 @@ void Select::draw() const
 			if (cnt >= 0)
 			{
 				rect
-					.stretched(s * 2)
+					.stretched((int)(s * 2))
 					.drawShadow(Vec2(0, 15 * s), 32 * s, 10 * s)
 					(getSelectedImage(cnt).resized(tileSize, tileSize)).draw()
 					.drawFrame(3, 0, (rect.mouseOver() ? Palette::Red : Palette::Black));
@@ -185,7 +185,7 @@ void Select::drawDetails(int cnt) const
 		creator = U"çÏé“ÅF" + getData().AlbumList[cnt].creator;
 	}
 	const auto width = Max(FontAsset(U"Select.albumDetail")(name).region().w, FontAsset(U"Select.albumDetail")(creator).region().w);
-	int x_addtion;
+	int x_addtion = 0;
 	if (cnt % 3 == 0) x_addtion = 13;
 	if (cnt % 3 == 1) x_addtion = (-width / 2);
 	if (cnt % 3 == 2) x_addtion = -width;

@@ -35,7 +35,7 @@ Album::Album(const InitData& init) : IScene(init)
 	albumList_FlagRect = Rect(Scene::Width() / 2, albumImageRect.y, 36, 36);
 	albumList_NameRect = Rect(albumList_FlagRect.x + albumList_FlagRect.w + 5, albumList_FlagRect.y, Scene::Width() / 2 - (36 * 2 + 5 * 2 + 25), 36);
 	albumList_FavRect = Rect(albumList_NameRect.x + albumList_NameRect.w + 5, albumList_FlagRect.y, 36, 36);
-	albumListAllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() / 2 - 25, 36 * albumListRows + 5 * (albumListRows - 1));
+	albumListAllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() / 2 - 25, 36 * (int)albumListRows + 5 * ((int)albumListRows - 1));
 	audioWaveRect = Rect(25, 35 + barHeight, albumNameRect.w, albumImageRect.h);
 	rectHeader = Quad(Vec2(0, 0), Vec2(160, 0), Vec2(160 + FontAsset(U"Album.header").height(), FontAsset(U"Album.header").height()), Vec2(0, FontAsset(U"Album.header").height()));
 	goUpPos = Vec2(albumListAllRect.center().x, barHeight + 5 + TextureAsset(U"Album.goUp").height() / 2);
@@ -109,8 +109,8 @@ void Album::update()
 	if (TextureAsset(U"Album.goDown").regionAt(goDownPos).leftClicked()) ++MusicListFirstIndex;
 	if (albumListAllRect.mouseOver()) MusicListFirstIndex += (int)Mouse::Wheel();
 	MusicListFirstIndex = Max(MusicListFirstIndex, 0);
-	MusicListFirstIndex = Min<int>(MusicListFirstIndex, Max<int>((int)getData().MusicList[albumDir].size() - albumListRows, 0));
-	for (int i = MusicListFirstIndex; i - MusicListFirstIndex < Min<int>(albumListRows, (signed)getData().MusicList[albumDir].size()) && i < (signed)getData().MusicList[albumDir].size(); ++i)
+	MusicListFirstIndex = Min<int>(MusicListFirstIndex, Max((int)getData().MusicList[albumDir].size() - (int)albumListRows, 0));
+	for (int i = MusicListFirstIndex; i - MusicListFirstIndex < Min((int)albumListRows, (signed)getData().MusicList[albumDir].size()) && i < (signed)getData().MusicList[albumDir].size(); ++i)
 	{
 		auto num = i - MusicListFirstIndex;
 		auto music = getData().MusicList[albumDir][i];
@@ -166,11 +166,11 @@ void Album::draw() const
 	if (MusicListFirstIndex + albumListRows < (signed)getData().MusicList[albumDir].size()) TextureAsset(U"Album.goDown").drawAt(goDownPos, (TextureAsset(U"Album.goDown").regionAt(goDownPos).mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
 	for (auto i : step(albumListRows))
 	{
-		drawButton(albumList_FlagRect.movedBy(0, i * 41), false);
-		drawButton(albumList_NameRect.movedBy(0, i * 41), false);
-		drawButton(albumList_FavRect.movedBy(0, i * 41), false);
+		drawButton(albumList_FlagRect.movedBy(0, (int)i * 41), false);
+		drawButton(albumList_NameRect.movedBy(0, (int)i * 41), false);
+		drawButton(albumList_FavRect.movedBy(0, (int)i * 41), false);
 	}
-	for (int i = MusicListFirstIndex; (i - MusicListFirstIndex) < Min<int>(albumListRows, (int)getData().MusicList[albumDir].size() - MusicListFirstIndex); ++i)
+	for (int i = MusicListFirstIndex; (i - MusicListFirstIndex) < Min((int)albumListRows, (int)getData().MusicList[albumDir].size() - MusicListFirstIndex); ++i)
 	{
 		auto num = i - MusicListFirstIndex;
 		auto music = getData().MusicList[albumDir][i];

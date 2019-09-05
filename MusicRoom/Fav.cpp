@@ -23,7 +23,7 @@ Fav::Fav(const InitData& init) : IScene(init)
 	albumList_FlagRect = Rect(25, 35 + barHeight, 36, 36);
 	albumList_NameRect = Rect(albumList_FlagRect.x + albumList_FlagRect.w + 5, albumList_FlagRect.y, Scene::Width() - (36 * 2 + 5 * 2 + 25 * 2), 36);
 	albumList_FavRect = Rect(albumList_NameRect.x + albumList_NameRect.w + 5, albumList_FlagRect.y, 36, 36);
-	albumList_AllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() - 50, 36 * albumListRows + 5 * (albumListRows - 1));
+	albumList_AllRect = Rect(albumList_FlagRect.x, albumList_FlagRect.y, Scene::Width() - 50, 36 * (int)albumListRows + 5 * ((int)albumListRows - 1));
 	goUpPos = Vec2(albumList_AllRect.center().x, barHeight + 5 + TextureAsset(U"Fav.goUp").height() / 2);
 	goDownPos = Vec2(albumList_AllRect.center().x, Scene::Height() - 5 - TextureAsset(U"Fav.goDown").height() / 2);
 	FavMusicListFirstIndex = 0;
@@ -37,9 +37,9 @@ void Fav::update()
 	if (TextureAsset(U"Fav.goDown").regionAt(goDownPos).leftClicked()) ++FavMusicListFirstIndex;
 	if (albumList_AllRect.mouseOver()) FavMusicListFirstIndex += (int)Mouse::Wheel();
 	FavMusicListFirstIndex = Max(FavMusicListFirstIndex, 0);
-	FavMusicListFirstIndex = Min<int>(FavMusicListFirstIndex, Max<int>((int)getData().FavMusicList.size() - albumListRows, 0));
+	FavMusicListFirstIndex = Min<int>(FavMusicListFirstIndex, Max((int)getData().FavMusicList.size() - (int)albumListRows, 0));
 
-	for (int i = FavMusicListFirstIndex; i - FavMusicListFirstIndex < Min<int>(albumListRows, (signed)getData().FavMusicList.size()) && i < (signed)getData().FavMusicList.size(); ++i)
+	for (int i = FavMusicListFirstIndex; i - FavMusicListFirstIndex < Min((int)albumListRows, (signed)getData().FavMusicList.size()) && i < (signed)getData().FavMusicList.size(); ++i)
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];
@@ -70,11 +70,11 @@ void Fav::draw() const
 	if (FavMusicListFirstIndex + albumListRows < (signed)getData().FavMusicList.size()) TextureAsset(U"Fav.goDown").drawAt(goDownPos, (TextureAsset(U"Fav.goDown").regionAt(goDownPos).mouseOver() ? getData().schemeColor5 : getData().schemeColor4));
 	for (auto i : step(albumListRows))
 	{
-		drawButton(albumList_FlagRect.movedBy(0, i * 41), false);
-		drawButton(albumList_NameRect.movedBy(0, i * 41), false);
-		drawButton(albumList_FavRect.movedBy(0, i * 41), false);
+		drawButton(albumList_FlagRect.movedBy(0, (int)i * 41), false);
+		drawButton(albumList_NameRect.movedBy(0, (int)i * 41), false);
+		drawButton(albumList_FavRect.movedBy(0, (int)i * 41), false);
 	}
-	for (int i = FavMusicListFirstIndex; (i - FavMusicListFirstIndex) < Min<int>(albumListRows, (int)getData().FavMusicList.size() - FavMusicListFirstIndex); ++i)
+	for (int i = FavMusicListFirstIndex; (i - FavMusicListFirstIndex) < Min((int)albumListRows, (int)getData().FavMusicList.size() - FavMusicListFirstIndex); ++i)
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];

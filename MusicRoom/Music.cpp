@@ -39,7 +39,7 @@ Music::Music(const InitData& init) : IScene(init)
 	albumExplRect = Rect(25, albumCreatorRect.y + albumCreatorRect.h + 35, albumNameRect.w, Scene::Height() - (albumCreatorRect.y + albumCreatorRect.h + 35) - 25);
 	musicNameRect = Rect(Scene::Width() / 2, albumImageRect.y, Scene::Width() / 2 - 25, FontAsset(U"Music.musicName").height() + 5);
 	musicSeekRect = RoundRect(musicNameRect.x + TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + 10, musicNameRect.y + musicNameRect.h + 25, musicNameRect.w - (TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + TextureAsset(U"Music.stop").width() + TextureAsset(U"Music.fav").width() + 20), TextureAsset(U"Music.stop").height() - 8, (TextureAsset(U"Music.stop").height() - 5) / 2);
-	musicExplRect = Rect(musicNameRect.x, musicSeekRect.y + musicSeekRect.h + 25 + FontAsset(U"Music.header").height(), musicNameRect.w, Scene::Height() - (musicSeekRect.y + musicSeekRect.h + 50 + FontAsset(U"Music.header").height()));
+	musicExplRect = Rect(musicNameRect.x, (int)musicSeekRect.y + (int)musicSeekRect.h + 25 + FontAsset(U"Music.header").height(), musicNameRect.w, Scene::Height() - ((int)musicSeekRect.y + (int)musicSeekRect.h + 50 + FontAsset(U"Music.header").height()));
 	rectHeader = Quad(Vec2(0, 0), Vec2(160, 0), Vec2(160 + FontAsset(U"Music.header").height(), FontAsset(U"Music.header").height()), Vec2(0, FontAsset(U"Music.header").height()));
 	playPos = Vec2(musicNameRect.x + TextureAsset(U"Music.play").width() / 2, musicSeekRect.center().y);
 	repPos = Vec2(playPos.x + TextureAsset(U"Music.play").width() / 2 + 5 + TextureAsset(U"Music.rep").width() / 2, musicSeekRect.center().y);
