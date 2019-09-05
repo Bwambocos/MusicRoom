@@ -43,7 +43,7 @@ void Fav::update()
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];
-		if (albumList_FlagRect.movedBy(0, num * 39).leftClicked())
+		if (albumList_FlagRect.movedBy(0, num * 41).leftClicked())
 		{
 			if (getData().selectedFavMusicIndex != i && getData().selectedFavMusicIndex != -1) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).stop();
 			getData().selectedFavMusicIndex = i;
@@ -51,8 +51,8 @@ void Fav::update()
 			if (newMusic.isPlaying()) newMusic.pause();
 			else newMusic.play();
 		}
-		if (albumList_FavRect.movedBy(0, num * 39).leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
-		if (albumList_NameRect.movedBy(0, num * 39).leftClicked())
+		if (albumList_FavRect.movedBy(0, num * 41).leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
+		if (albumList_NameRect.movedBy(0, num * 41).leftClicked())
 		{
 			if (getData().selectedFavMusicIndex != i && getData().selectedFavMusicIndex != -1) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).stop();
 			if (getData().selectedFavMusicIndex != i) getData().selectedFavMusicIndex = i;
@@ -74,7 +74,7 @@ void Fav::draw() const
 		drawButton(albumList_NameRect.movedBy(0, (int)i * 41), false);
 		drawButton(albumList_FavRect.movedBy(0, (int)i * 41), false);
 	}
-	for (int i = FavMusicListFirstIndex; (i - FavMusicListFirstIndex) < Min((int)albumListRows, (int)getData().FavMusicList.size() - FavMusicListFirstIndex); ++i)
+	for (int i = FavMusicListFirstIndex; i - FavMusicListFirstIndex < Min((int)albumListRows, (signed)getData().FavMusicList.size()) && i < (signed)getData().FavMusicList.size(); ++i)
 	{
 		auto num = i - FavMusicListFirstIndex;
 		auto music = getData().FavMusicList[i];
