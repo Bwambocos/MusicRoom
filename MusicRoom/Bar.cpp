@@ -18,6 +18,7 @@ Bar::Bar()
 	TextureAsset::Register(U"Bar.share", Icon(0xf14d, 52));
 	TextureAsset::Register(U"Bar.back", Icon(0xf0a8, 56));
 	TextureAsset::Register(U"Bar.go", Icon(0xf0a9, 56));
+	TextureAsset::Register(U"lightIcon", Icon(0xf0eb, 42));
 	FontAsset::Register(U"Bar.main", 26, U"data\\fontR.ttc");
 	AudioAsset::Register(U"Bar.dog", U"data\\Bar\\dog.mp3");
 
@@ -31,6 +32,7 @@ Bar::Bar()
 	nextPos = Vec2(sharePos.x + buttonSize + 10, prevPos.y);
 	backPos = Vec2(5 + TextureAsset(U"Bar.back").width() / 2, prevPos.y);
 	goPos = Vec2(Scene::Width() - 5 - TextureAsset(U"Bar.go").width() / 2, prevPos.y);
+	lightIconPos = Vec2(nextPos.x + buttonSize + 10, prevPos.y);
 	draw_mainText_x = mainRect.x + 5;
 }
 
@@ -167,6 +169,9 @@ void Bar::update(GameData& getData, MyApp& manager)
 		draw_mainText_x = mainRect.x + 5;
 	}
 	draw_mainText_update();
+	
+	// 描画モード切替
+	if (TextureAsset(U"lightIcon").regionAt(lightIconPos).leftClicked()) setDrawMode(getData, manager);
 }
 
 // 描画
@@ -193,8 +198,11 @@ void Bar::draw(GameData getData)
 	rasterizer.scissorEnable = true;
 	Graphics2D::SetRasterizerState(rasterizer);
 	Graphics2D::SetScissorRect(mainRect.rect);
-	FontAsset(U"Bar.main")(mainText).draw(draw_mainText_x, mainRect.y + mainRect.h / 2 - FontAsset(U"Bar.main").height() / 2);
+	FontAsset(U"Bar.main")(mainText).draw(draw_mainText_x, mainRect.y + mainRect.h / 2 - FontAsset(U"Bar.main").height() / 2, getData.stringColor);
 	Graphics2D::SetScissorRect(Scene::Rect());
+
+	// 描画モード切替
+	TextureAsset(U"lightIcon").drawAt(lightIconPos, (TextureAsset(U"lightIcon").region(lightIconPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
 }
 
 // 曲名描画位置 更新
@@ -248,4 +256,30 @@ void Bar::changeMusic(GameData& getData, MyApp& manager, int t)
 	}
 	musicSamplesPlayed = 0;
 	musicHasChangedFlag = true;
+}
+
+// ダークモードとライトモードを切り替える
+void Bar::setDrawMode(GameData& data, MyApp& manager)
+{
+	(++data.drawMode) %= 2;
+	if (data.drawMode == 0)
+	{
+		data.schemeColor1 = Color(22, 22, 22);
+		data.schemeColor2 = Color(66, 66, 66);
+		data.schemeColor3 = Color(110, 110, 110);
+		data.schemeColor4 = Color(154, 154, 154);
+		data.schemeColor5 = Color(198, 198, 198);
+		data.stringColor = Palette::White;
+	}
+	else
+	{
+		data.schemeColor1 = Color(64, 138, 241);
+		data.schemeColor2 = Color(90, 162, 246);
+		data.schemeColor3 = Color(120, 182, 250);
+		data.schemeColor4 = Color(136, 203, 250);
+		data.schemeColor5 = Color(168, 215, 250);
+		data.stringColor = Palette::Black;
+	}
+	Scene::SetBackground(data.schemeColor1);
+	manager.setFadeColor(data.schemeColor1);
 }
