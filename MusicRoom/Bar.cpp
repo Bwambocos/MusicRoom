@@ -127,6 +127,7 @@ void Bar::update(GameData& getData, MyApp& manager)
 		if (TextureAsset(U"Bar.stop").regionAt(stopPos).leftClicked())
 		{
 			nowMusic.stop();
+			musicSamplesPlayed = 0;
 			if (getData.nowScene == U"Fav" || getData.prevScene == U"Fav") getData.selectedFavMusicIndex = -1;
 			else getData.selectedMusicIndex = -1;
 			if (getData.nowScene == U"Music")
