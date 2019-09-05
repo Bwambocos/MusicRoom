@@ -11,7 +11,7 @@ class Bar
 private:
 
 	// const
-	const int mainRectWidth = 450;
+	const int mainRectWidth = 600;
 	const int buttonSize = 52;
 	const int draw_stayMillisec = 3500;
 	const int draw_mainTextMoveX = 48;
@@ -21,7 +21,7 @@ private:
 	String mainText = U"", albumName, albumDir, musicName, musicDir;
 	int64 musicSamplesPlayed = 0;
 	Stopwatch draw_mainTextTime;
-	Vec2 prevPos, playPos, repPos, stopPos, sharePos, nextPos, backPos, goPos;
+	Vec2 prevPos, playPos, repPos, stopPos, sharePos, nextPos, backPos, goPos, lightIconPos;
 	bool draw_back_flag = false, draw_go_flag = false, draw_mainText_stayFlag = true, musicHasChangedFlag = false;
 	double draw_mainText_x;
 
@@ -41,4 +41,7 @@ public:
 
 	// 曲変更処理
 	void changeMusic(GameData& getData, MyApp& manager, int t);
+
+	// ダークモードとライトモードを切り替える
+	void setDrawMode(GameData& data, MyApp& manager);
 };
