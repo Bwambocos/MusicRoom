@@ -179,7 +179,7 @@ void Bar::draw(GameData getData)
 	if (draw_go_flag) TextureAsset(U"Bar.go").drawAt(goPos, (TextureAsset(U"Bar.go").regionAt(goPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
 	TextureAsset(U"Bar.prev").drawAt(prevPos, (TextureAsset(U"Bar.prev").regionAt(prevPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
 	TextureAsset((nowMusic.isPlaying() ? U"Bar.pause" : U"Bar.play")).drawAt(playPos, (TextureAsset(U"Bar.play").regionAt(playPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
-	TextureAsset(U"Bar.rep").drawAt(repPos, (TextureAsset(U"Bar.rep").regionAt(repPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
+	TextureAsset(U"Bar.rep").drawAt(repPos, ((TextureAsset(U"Bar.rep").regionAt(repPos).mouseOver() || getData.selectedMusicLoopFlag) ? Palette::Orange : getData.schemeColor4));
 	TextureAsset(U"Bar.stop").drawAt(stopPos, (TextureAsset(U"Bar.stop").regionAt(stopPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
 	TextureAsset(U"Bar.share").drawAt(sharePos, (TextureAsset(U"Bar.share").regionAt(sharePos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
 	TextureAsset(U"Bar.next").drawAt(nextPos, (TextureAsset(U"Bar.next").regionAt(nextPos).mouseOver() ? getData.schemeColor5 : getData.schemeColor4));
