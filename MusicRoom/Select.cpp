@@ -127,7 +127,8 @@ void Select::draw() const
 			{
 				rect
 					.stretched((int)(s * 2))
-					.drawShadow(Vec2(0, 15 * s), 32 * s, 10 * s)
+					.drawShadow(Vec2(0, 15 * s), 32 * s, 10 * s, getData().schemeColor5)
+					.draw(getData().schemeColor1)
 					(getSelectedImage(cnt).resized(tileSize, tileSize)).draw()
 					.drawFrame(3, 0, (rect.mouseOver() ? Palette::Red : Palette::Black));
 			}
