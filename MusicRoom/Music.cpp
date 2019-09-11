@@ -150,9 +150,9 @@ void Music::update()
 		{
 			(getData().isFav(albumName, musicName)
 				? getData().removeFav(albumName, musicName)
-				: getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment, nowMusic));
+				: getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
 		}
-		if (getData().prevScene == U"Fav") (getData().isFav(albumName, musicName) ? getData().removeFav(albumName, musicName) : getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment, nowMusic));
+		if (getData().prevScene == U"Fav") (getData().isFav(albumName, musicName) ? getData().removeFav(albumName, musicName) : getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
 	}
 }
 

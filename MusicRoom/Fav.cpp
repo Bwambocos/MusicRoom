@@ -51,7 +51,7 @@ void Fav::update()
 			if (newMusic.isPlaying()) newMusic.pause();
 			else newMusic.play();
 		}
-		if (albumList_FavRect.movedBy(0, num * 41).leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment, music.music));
+		if (albumList_FavRect.movedBy(0, num * 41).leftClicked()) (getData().isFav(music.album_name, music.music_name) ? getData().removeFav(music.album_name, music.music_name) : getData().addFav(music.album_name, music.album_dir, music.album_creator, music.album_comment, music.music_name, music.music_dir, music.comment));
 		if (albumList_NameRect.movedBy(0, num * 41).leftClicked())
 		{
 			if (getData().selectedFavMusicIndex != i && getData().selectedFavMusicIndex != -1) AudioAsset(U"album-" + getData().FavMusicList[getData().selectedFavMusicIndex].album_dir + U".music-" + getData().FavMusicList[getData().selectedFavMusicIndex].music_dir).stop();

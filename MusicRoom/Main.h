@@ -17,23 +17,18 @@ namespace GameInfo
 struct AlbumData
 {
 	String name, dir, creator, comment;
-	Texture image;
 };
 
 // 曲構造体
 struct MusicData
 {
-	Audio music;
-	String name, dir, comment, compressedName;
-	int totalTime;
+	String name, dir, comment;
 };
 
 // お気に入り曲構造体
 struct FavMusicData
 {
-	Audio music;
-	String album_name, album_dir, album_creator, album_comment, music_name, music_dir, comment, music_compressedName;
-	int totalTime;
+	String album_name, album_dir, album_creator, album_comment, music_name, music_dir, comment;
 };
 
 // 全てのシーンからアクセスできるデータ
@@ -59,9 +54,9 @@ struct GameData
 	}
 
 	// お気に入りに追加する
-	void addFav(String albumName, String albumDir, String albumCreator, String albumComment, String musicName, String musicDir, String musicComment, Audio music)
+	void addFav(String albumName, String albumDir, String albumCreator, String albumComment, String musicName, String musicDir, String musicComment)
 	{
-		FavMusicList.push_back({ music, albumName, albumDir,albumCreator, albumComment,musicName, musicDir, musicComment, compressMusicName(musicName), (int)music.lengthSec() });
+		FavMusicList.push_back({ albumName, albumDir,albumCreator, albumComment,musicName, musicDir, musicComment });
 	}
 
 	// お気に入りから削除する
@@ -76,16 +71,6 @@ struct GameData
 				break;
 			}
 		}
-	}
-
-	// 曲名短縮
-	String compressMusicName(String text) const
-	{
-		const String dots(U"...");
-		size_t fixedLength = 0;
-		while (Font(20, U"data\\fontR.ttc")(text.substr(0, fixedLength) + dots).region().w < 537 && fixedLength <= text.length()) ++fixedLength;
-		--fixedLength;
-		return (fixedLength == text.length() ? text : text.substr(0, fixedLength) + dots);
 	}
 
 	int drawMode = 0;

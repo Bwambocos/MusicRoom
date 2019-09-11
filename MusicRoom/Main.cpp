@@ -48,8 +48,19 @@ void loadFavList(GameData& getData)
 		String temp; while (albumTextReader.readLine(temp)) albumComment += temp + U"\n";
 		musicTextReader.readLine(musicName);
 		while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
-		AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
-		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment, Audio());
+		if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+		}
+		else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg");
+		}
+		else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav");
+		}
+		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment);
 	}
 }
 

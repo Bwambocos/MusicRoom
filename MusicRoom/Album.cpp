@@ -104,7 +104,7 @@ Album::Album(const InitData& init) : IScene(init)
 			TextReader reader2(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 			reader2.readLine(musicName);
 			String temp; while (reader2.readLine(temp)) musicComment += temp + U"\n";
-			getData().MusicList[albumDir].push_back({ Audio(), musicName, musicDir, musicComment, U"", 0 });
+			getData().MusicList[albumDir].push_back({ musicName, musicDir, musicComment });
 		}
 	}
 }
@@ -135,7 +135,7 @@ void Album::update()
 		}
 		if (albumList_FavRect.movedBy(0, num * 41).leftClicked())
 		{
-			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, albumCreator, albumComment, music.name, music.dir, music.comment, music.music));
+			(getData().isFav(albumName, music.name) ? getData().removeFav(albumName, music.name) : getData().addFav(albumName, albumDir, albumCreator, albumComment, music.name, music.dir, music.comment));
 		}
 		if (albumList_NameRect.movedBy(0, num * 41).leftClicked())
 		{

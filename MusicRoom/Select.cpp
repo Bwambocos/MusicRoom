@@ -15,8 +15,6 @@ Select::Select(const InitData& init) : IScene(init)
 	TextureAsset::Register(U"Select.goDown", Icon(0xf13a, 42));
 
 	// アルバム・曲選択 初期化
-	if (getData().nowScene == U"Fav" && !getData().FavMusicList.empty() && getData().selectedFavMusicIndex != -1) getData().FavMusicList[getData().selectedFavMusicIndex].music.stop();
-	if (getData().nowScene == U"Album" && getData().selectedMusicIndex != -1) getData().MusicList[getData().AlbumList[getData().selectedAlbumIndex].dir][getData().selectedMusicIndex].music.stop();
 	getData().selectedAlbumIndex = -1;
 	getData().selectedMusicIndex = -1;
 	getData().selectedFavMusicIndex = -1;
@@ -37,7 +35,7 @@ Select::Select(const InitData& init) : IScene(init)
 		text.readLine(creator);
 		String temp; while (text.readLine(temp)) comment += temp + U"\n";
 		TextureAsset::Register(U"album-" + dir + U".image", U"music\\" + dir + U"\\" + dir + U".png", TextureDesc::Mipped);
-		getData().AlbumList.push_back({ name,dir,creator,comment,Texture() });
+		getData().AlbumList.push_back({ name,dir,creator,comment });
 	}
 
 	albumGrid = Grid<double>(albumGridWidth, (getData().AlbumList.size() + albumGridWidth) / albumGridWidth + 2);
