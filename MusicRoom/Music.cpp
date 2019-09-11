@@ -38,7 +38,7 @@ Music::Music(const InitData& init) : IScene(init)
 	albumCreatorRect = Rect(25, albumNameRect.y + albumNameRect.h + 35, albumNameRect.w, 48);
 	albumExplRect = Rect(25, albumCreatorRect.y + albumCreatorRect.h + 35, albumNameRect.w, Scene::Height() - (albumCreatorRect.y + albumCreatorRect.h + 35) - 25);
 	musicNameRect = Rect(Scene::Width() / 2, albumImageRect.y, Scene::Width() / 2 - 25, FontAsset(U"Music.musicName").height() + 5);
-	musicSeekRect = RoundRect(musicNameRect.x + TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + 10, musicNameRect.y + musicNameRect.h + 25, musicNameRect.w - (TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + TextureAsset(U"Music.stop").width() + TextureAsset(U"Music.fav").width() + 20), TextureAsset(U"Music.stop").height() - 8, (TextureAsset(U"Music.stop").height() - 5) / 2);
+	musicSeekRect = RoundRect(musicNameRect.x + TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + 10, musicNameRect.y + musicNameRect.h + 25, musicNameRect.w - (TextureAsset(U"Music.play").width() + TextureAsset(U"Music.rep").width() + TextureAsset(U"Music.stop").width() + TextureAsset(U"Music.fav").width() + 30), TextureAsset(U"Music.stop").height() - 12, (TextureAsset(U"Music.stop").height() - 5) / 2);
 	musicExplRect = Rect(musicNameRect.x, (int)musicSeekRect.y + (int)musicSeekRect.h + 25 + FontAsset(U"Music.header").height(), musicNameRect.w, Scene::Height() - ((int)musicSeekRect.y + (int)musicSeekRect.h + 50 + FontAsset(U"Music.header").height()));
 	rectHeader = Quad(Vec2(0, 0), Vec2(160, 0), Vec2(160 + FontAsset(U"Music.header").height(), FontAsset(U"Music.header").height()), Vec2(0, FontAsset(U"Music.header").height()));
 	playPos = Vec2(musicNameRect.x + TextureAsset(U"Music.play").width() / 2, musicSeekRect.center().y);
@@ -108,51 +108,54 @@ void Music::update()
 	{
 		seekButtonFlag = true;
 		nowMusic.pause();
-		nowMusic.setPosSample(nowMusic.samples() * (Cursor::Pos().x - (int)musicSeekRect.x) / (int)musicSeekRect.w);
+		nowMusic.setPosSample(nowMusic.samples() * (Cursor::Pos().x - ((int)musicSeekRect.x + (int)musicSeekRect.r)) / ((int)musicSeekRect.w - (int)musicSeekRect.r * 2));
 	}
 	else if (seekButtonFlag)
 	{
 		nowMusic.play();
 		seekButtonFlag = false;
 	}
-	seekPos = Vec2(musicSeekRect.x + musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.y + musicSeekRect.h / 2);
+	seekPos = Vec2(musicSeekRect.x + musicSeekRect.r + (musicSeekRect.w - 2 * musicSeekRect.r) * nowMusic.streamPosSample() / nowMusic.samples(), musicSeekRect.y + musicSeekRect.h / 2);
 
 	// ボタン
-	if (TextureAsset(nowMusic.isPlaying() ? U"Music.pause" : U"Music.play").regionAt(playPos).leftClicked() || KeyEnter.pressed())
+	if (!seekButtonFlag)
 	{
-		if (nowMusic.isPlaying()) nowMusic.pause();
-		else nowMusic.play();
-	}
-	if (TextureAsset(U"Music.rep").regionAt(repPos).leftClicked() || KeyShift.pressed())
-	{
-		const int tmpTime = (int)nowMusic.streamPosSample();
-		nowMusic.pause();
-		getData().selectedMusicLoopFlag = !getData().selectedMusicLoopFlag;
-		nowMusic.setLoop(getData().selectedMusicLoopFlag);
-		nowMusic.play();
-		nowMusic.setPosSample(tmpTime);
-	}
-	if (TextureAsset(U"Music.stop").regionAt(stopPos).leftClicked() || KeySpace.pressed())
-	{
-		nowMusic.stop();
-		if (getData().nowScene == U"Fav" || getData().prevScene == U"Fav") getData().selectedFavMusicIndex = -1;
-		else getData().selectedMusicIndex = -1;
-		if (getData().nowScene == U"Music")
+		if (TextureAsset(nowMusic.isPlaying() ? U"Music.pause" : U"Music.play").regionAt(playPos).leftClicked() || KeyEnter.pressed())
 		{
-			if (getData().prevScene == U"Fav") changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
-			else changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+			if (nowMusic.isPlaying()) nowMusic.pause();
+			else nowMusic.play();
 		}
-		return;
-	}
-	if (TextureAsset(U"Music.fav").regionAt(favPos).leftClicked())
-	{
-		if (getData().prevScene == U"Album")
+		if (TextureAsset(U"Music.rep").regionAt(repPos).leftClicked() || KeyShift.pressed())
 		{
-			(getData().isFav(albumName, musicName)
-				? getData().removeFav(albumName, musicName)
-				: getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
+			const int tmpTime = (int)nowMusic.streamPosSample();
+			nowMusic.pause();
+			getData().selectedMusicLoopFlag = !getData().selectedMusicLoopFlag;
+			nowMusic.setLoop(getData().selectedMusicLoopFlag);
+			nowMusic.play();
+			nowMusic.setPosSample(tmpTime);
 		}
-		if (getData().prevScene == U"Fav") (getData().isFav(albumName, musicName) ? getData().removeFav(albumName, musicName) : getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
+		if (TextureAsset(U"Music.stop").regionAt(stopPos).leftClicked() || KeySpace.pressed())
+		{
+			nowMusic.stop();
+			if (getData().nowScene == U"Fav" || getData().prevScene == U"Fav") getData().selectedFavMusicIndex = -1;
+			else getData().selectedMusicIndex = -1;
+			if (getData().nowScene == U"Music")
+			{
+				if (getData().prevScene == U"Fav") changeScene(U"Fav", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+				else changeScene(U"Album", GameInfo::FadeInTime, GameInfo::FadeCrossFlag);
+			}
+			return;
+		}
+		if (TextureAsset(U"Music.fav").regionAt(favPos).leftClicked())
+		{
+			if (getData().prevScene == U"Album")
+			{
+				(getData().isFav(albumName, musicName)
+					? getData().removeFav(albumName, musicName)
+					: getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
+			}
+			if (getData().prevScene == U"Fav") (getData().isFav(albumName, musicName) ? getData().removeFav(albumName, musicName) : getData().addFav(albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment));
+		}
 	}
 }
 
@@ -189,7 +192,7 @@ void Music::draw() const
 	// 再生バー
 	// バー
 	musicSeekRect.draw(getData().schemeColor2);
-	RoundRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.w * nowMusic.streamPosSample() / nowMusic.samples() + 10, musicSeekRect.h, musicSeekRect.r).draw(Palette::Lightgreen);
+	RoundRect(musicSeekRect.x, musicSeekRect.y, musicSeekRect.r + (musicSeekRect.w - 2 * musicSeekRect.r) * nowMusic.streamPosSample() / nowMusic.samples() + 10, musicSeekRect.h, musicSeekRect.r).draw(Palette::Lightgreen);
 	musicSeekRect.drawFrame(1, getData().schemeColor3);
 	TextureAsset(U"Music.seek").drawAt(seekPos, nowMusic.isPlaying() ? getData().schemeColor5 : getData().schemeColor4);
 
