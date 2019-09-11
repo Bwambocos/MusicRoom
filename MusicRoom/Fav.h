@@ -8,13 +8,11 @@ class Fav : public MyApp::Scene
 private:
 
 	// const
-	const int maxCellNum = 12;
+	const size_t albumListRows = 16;
 
 	// ÉOÉçÅ[ÉoÉãïœêî
-	Texture backgroundImage, playImage, pauseImage, notFavImage, favImage;
-	Font albumListFont;
-	RoundRect albumList_FlagRect, albumList_NameRect, albumList_TimeRect, albumList_FavRect, albumList_AllRect, albumList_CellRect;
-	Triangle goUpButton, goDownButton;
+	Rect albumList_FlagRect, albumList_NameRect, albumList_FavRect, albumList_AllRect;
+	Vec2 goUpPos, goDownPos;
 	int FavMusicListFirstIndex;
 
 public:
@@ -28,6 +26,6 @@ public:
 	// ï`âÊ
 	void draw() const override;
 
-	// ã»ñºíZèk
-	String compressMusicName(String text) const;
+	// É{É^Éìï`âÊ
+	void drawButton(Rect rect, bool highlight) const;
 };

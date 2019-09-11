@@ -1,6 +1,5 @@
 ﻿// include
 #include <Siv3D.hpp>
-#include <HamFramework.hpp>
 #include "Main.h"
 #include "Bar.h"
 #include "Select.h"
@@ -14,7 +13,8 @@ void Main()
 	Window::SetTitle(GameInfo::Title);
 
 	MyApp manager;
-	manager.setFadeColor(GameInfo::FadeInColor);
+	Scene::SetBackground((*(manager.get())).schemeColor1);
+	manager.setFadeColor((*(manager.get())).schemeColor1);
 	manager.add<Select>(U"Select");
 	manager.add<Album>(U"Album");
 	manager.add<Music>(U"Music");
@@ -40,14 +40,27 @@ void loadFavList(GameData& getData)
 	{
 		auto albumDir = csv.get<String>(i, 0);
 		auto musicDir = csv.get<String>(i, 1);
-		String albumName, musicName, musicComment;
+		String albumName, albumCreator, albumComment, musicName, musicComment;
 		TextReader albumTextReader(U"music\\" + albumDir + U"\\" + albumDir + U".txt");
 		TextReader musicTextReader(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 		albumTextReader.readLine(albumName);
+		albumTextReader.readLine(albumCreator);
+		String temp; while (albumTextReader.readLine(temp)) albumComment += temp + U"\n";
 		musicTextReader.readLine(musicName);
-		String temp; while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
-		Audio music(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
-		getData.addFav(albumName, albumDir, musicName, musicDir, musicComment, music);
+		while (musicTextReader.readLine(temp)) musicComment += temp + U"\n";
+		if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+		}
+		else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg");
+		}
+		else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav"))
+		{
+			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav");
+		}
+		getData.addFav(albumName, albumDir, albumCreator, albumComment, musicName, musicDir, musicComment);
 	}
 }
 

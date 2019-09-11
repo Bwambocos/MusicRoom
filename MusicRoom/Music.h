@@ -8,18 +8,17 @@ class Music : public MyApp::Scene
 private:
 
 	// const
-	const int draw_musicNameDefaultX = 33;
 	const int draw_stayMillisec = 3500;
 	const int draw_moveXPerSec = 48;
 
 	// ÉOÉçÅ[ÉoÉãïœêî
-	Texture backgroundImage, favedImage, notFavedImage, playImage_all[2], pauseImage_all[2], stopImage_all[2], seekImage_all[2], repImage_all[2], playImage_display, pauseImage_display, stopImage_display, seekImage_display, repImage_display;
-	String albumName, albumDir, musicName, musicDir, musicComment, musicTotalTime;
-	Font musicNameAndTimeFont, musicExplFont;
-	RoundRect musicNameRect, musicTimeRect, musicFavRect, musicSeekRect, musicExplRect;
+	String albumName, albumDir, albumCreator, albumExpl, musicName, musicDir, musicComment;
+	Rect albumImageRect, albumNameRect, albumCreatorRect, albumExplRect, musicNameRect, musicExplRect;
+	RoundRect musicSeekRect;
+	Quad rectHeader;
 	FFTResult musicFFT;
 	Stopwatch draw_musicNameTime;
-	Array<String> musicComment_separeted;
+	Vec2 playPos, stopPos, seekPos, repPos, favPos;
 	double draw_musicNameX;
 	bool draw_musicNameStayFlag, seekButtonFlag = false;
 
@@ -34,9 +33,9 @@ public:
 	// ï`âÊ
 	void draw() const override;
 
-	// ã»ê‡ñæ ï`âÊ
-	void musicExpl_draw() const;
-
 	// ã»ñºï`âÊà íu çXêV
 	void draw_musicName_update();
+
+	// ï∂éöîwåiï`âÊ
+	void drawStrBackground(Rect rect, String header, String icon) const;
 };
