@@ -8,7 +8,7 @@ namespace GameInfo
 {
 	const int32 Width = 1280;
 	const int32 Height = 720;
-	const String Title = U"MusicRoom v4.5";
+	const String Title = U"MusicRoom v5.0";
 	const int32 FadeInTime = 500;
 	const bool FadeCrossFlag = true;
 }
