@@ -89,7 +89,14 @@ Album::Album(const InitData& init) : IScene(init)
 		while (reader1.readLine(musicDir))
 		{
 			String musicName, musicComment;
-			AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+			if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3"))
+			{
+				AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
+			}
+			if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg"))
+			{
+				AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg");
+			}
 			TextReader reader2(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 			reader2.readLine(musicName);
 			String temp; while (reader2.readLine(temp)) musicComment += temp + U"\n";
