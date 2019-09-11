@@ -93,9 +93,13 @@ Album::Album(const InitData& init) : IScene(init)
 			{
 				AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".mp3");
 			}
-			if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg"))
+			else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg"))
 			{
 				AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".ogg");
+			}
+			else if (FileSystem::Exists(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav"))
+			{
+				AudioAsset::Register(U"album-" + albumDir + U".music-" + musicDir, U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".wav");
 			}
 			TextReader reader2(U"music\\" + albumDir + U"\\" + musicDir + U"\\" + musicDir + U".txt");
 			reader2.readLine(musicName);
